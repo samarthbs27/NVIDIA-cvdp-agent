@@ -31,26 +31,12 @@ DATASET      = Path("dataset/hackathon-agentic-obfuscated_final_corrected.jsonl"
 WORK_DIR     = Path("work")
 MAX_ATTEMPTS = 6
 
-# ── AGENTS.md template (Codex reads this automatically from the workdir) ──────
-AGENTS_MD_TEMPLATE = """\
-# Agent: CVDP Verilog Engineer
-
-## Goal
-Read `prompt.txt` to understand the task. Fix or generate the Verilog/SystemVerilog
-files in `rtl/` so that they compile cleanly and pass simulation.
-
-## Steps
-1. Read `prompt.txt` — this describes the exact task
-2. Read all files in `rtl/` — these are the RTL files to fix or complete
-3. Read files in `verif/` for context (testbench) — do NOT modify these
-4. Fix or generate the RTL file(s) in `rtl/`
-5. Compile: `iverilog -g2012 -Wall -o sim.out rtl/*.sv verif/*.sv`
-   (adjust glob if files are .v not .sv)
-6. If compilation fails, read the error, fix the RTL, and retry step 5
-7. Simulate: `vvp sim.out`
-8. If tests fail or show FAIL/ERROR, analyse the output, fix the RTL, retry from step 5
-9. Continue until all tests pass or you have exhausted your best ideas
-"""
+# ── AGENTS.md — load from file (Codex reads this automatically from the workdir) ──
+AGENTS_MD_FILE = Path("AGENTS.md")
+if not AGENTS_MD_FILE.exists():
+    print(f"ERROR: AGENTS.md not found at {AGENTS_MD_FILE.resolve()}")
+    sys.exit(1)
+AGENTS_MD_TEMPLATE = AGENTS_MD_FILE.read_text(encoding="utf-8")
 
 # ── Escalating prompts ─────────────────────────────────────────────────────────
 # Attempts 1-3: guided, work with what's there
@@ -107,33 +93,42 @@ def write_error_log(workdir: Path, attempt: int, output: str) -> None:
 
 
 # ── Codex ──────────────────────────────────────────────────────────────────────
-def run_codex(workdir: Path, prompt: str) -> bool:
+def run_codex(workdir: Path, prompt: str, attempt: int) -> bool:
     """
     Invoke Codex CLI in the working directory.
     --dangerously-bypass-approvals-and-sandbox : no confirmation prompts
     --skip-git-repo-check                      : workdirs are not git repos
     shell=True                                 : required on Windows for npm global binaries
+    Saves stdout+stderr to codex_attempt_<N>.log in the workdir.
     Returns True if Codex exited cleanly.
     """
+    log_path = workdir / f"codex_attempt_{attempt}.log"
     try:
-        result = subprocess.run(
-            f'codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check "{prompt}"',
-            cwd=workdir,
-            timeout=300,        # 5 minutes per codex call
-            shell=True,         # required on Windows for npm global binaries
-            stdin=subprocess.DEVNULL,  # prevent codex from waiting for Enter
-        )
+        with open(log_path, "w", encoding="utf-8", errors="replace") as log_file:
+            log_file.write(f"=== Codex attempt {attempt} ===\nPrompt: {prompt}\n\n")
+            log_file.flush()
+            result = subprocess.run(
+                f'codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check "{prompt}"',
+                cwd=workdir,
+                timeout=600,        # 10 minutes per codex call
+                shell=True,         # required on Windows for npm global binaries
+                stdin=subprocess.DEVNULL,  # prevent codex from waiting for Enter
+                stdout=log_file,
+                stderr=log_file,
+            )
         return result.returncode == 0
     except subprocess.TimeoutExpired:
-        print("  [codex timed out after 5 min]")
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write("\n[TIMED OUT after 10 min]\n")
+        print("  [codex timed out after 10 min]")
         return False
 
 
 # ── Validation ─────────────────────────────────────────────────────────────────
-def run_iverilog(workdir: Path) -> tuple[bool, str]:
+def run_iverilog(workdir: Path) -> tuple[bool, str, str]:
     """
     Compile and simulate the RTL with iverilog + vvp.
-    Returns (passed: bool, output: str).
+    Returns (passed: bool, compile_output: str, sim_output: str).
     """
     rtl_dir   = workdir / "rtl"
     verif_dir = workdir / "verif"
@@ -148,30 +143,49 @@ def run_iverilog(workdir: Path) -> tuple[bool, str]:
     ) if verif_dir.exists() else []
 
     if not rtl_files:
-        return False, "No RTL files found in rtl/"
+        return False, "No RTL files found in rtl/", ""
 
-    sim_out = str(workdir / "sim.out")
+    sim_out = str(workdir.resolve() / "sim.out")
 
     # Compile
     compile_r = subprocess.run(
         ["iverilog", "-g2012", "-o", sim_out] + rtl_files + tb_files,
         capture_output=True, text=True
     )
+    compile_out = compile_r.stdout + compile_r.stderr
     if compile_r.returncode != 0:
-        return False, f"Compile error:\n{compile_r.stderr}"
+        return False, compile_out, ""
 
     # Simulate
     try:
         sim_r = subprocess.run(
             ["vvp", sim_out],
-            capture_output=True, text=True, timeout=60
+            capture_output=True, text=True, timeout=60,
+            cwd=workdir,
         )
     except subprocess.TimeoutExpired:
-        return False, "Simulation timed out"
+        return False, compile_out, "Simulation timed out"
 
-    output = sim_r.stdout + sim_r.stderr
-    passed = sim_r.returncode == 0 and "FAIL" not in output.upper()
-    return passed, output
+    sim_output = sim_r.stdout + sim_r.stderr
+    passed = sim_r.returncode == 0 and "FAIL" not in sim_output.upper()
+
+    # Delete VCD waveform files — large, not used by Codex or our validation
+    for vcd in workdir.rglob("*.vcd"):
+        vcd.unlink(missing_ok=True)
+
+    return passed, compile_out, sim_output
+
+
+def log_iverilog(workdir: Path, attempt: int, compile_out: str, sim_out: str, passed: bool) -> None:
+    """Save full iverilog + vvp output for this attempt to iverilog_attempt_<N>.log."""
+    log_path = workdir / f"iverilog_attempt_{attempt}.log"
+    log_path.write_text(
+        f"=== iverilog attempt {attempt} ===\n"
+        f"Result: {'PASS' if passed else 'FAIL'}\n\n"
+        f"--- compile ---\n{compile_out}\n"
+        f"--- simulation ---\n{sim_out}\n",
+        encoding="utf-8"
+    )
 
 
 # ── Problem runner ─────────────────────────────────────────────────────────────
@@ -195,10 +209,12 @@ def solve_problem(problem: dict, mode: str) -> dict:
         prompt = PROMPTS[attempt]
         print(f"\n  [Attempt {attempt}/{max_iters}] Running codex ...", flush=True)
 
-        run_codex(workdir, prompt)
+        run_codex(workdir, prompt, attempt)
 
         print(f"  [Attempt {attempt}/{max_iters}] Validating with iverilog ...", flush=True)
-        passed, output = run_iverilog(workdir)
+        passed, compile_out, sim_out = run_iverilog(workdir)
+        output = compile_out + sim_out
+        log_iverilog(workdir, attempt, compile_out, sim_out, passed)
 
         if passed:
             print(f"  Result     : PASS ✓  (attempt {attempt})")

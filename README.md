@@ -62,6 +62,8 @@ Our `agent.py` is purely an orchestrator — it sets up the environment and call
 
 **Codex CLI setup:** run `codex` once in the terminal to configure your OpenAI API key. After that, no further key management is needed.
 
+**Model used:** `gpt-5.4` with `reasoning effort: xhigh` (configured via ASU OpenAI account).
+
 ---
 
 ## Project Structure
@@ -69,19 +71,24 @@ Our `agent.py` is purely an orchestrator — it sets up the environment and call
 ```
 CVDP_agent/
 ├── agent.py                  ← main orchestrator
+├── AGENTS.md                 ← Codex workflow instructions (standalone, editable)
 ├── dataset/
 │   └── hackathon-agentic-obfuscated_final_corrected.jsonl   ← 30 benchmark problems
 ├── work/                     ← per-problem working directories (created at runtime)
 │   └── <problem_id>/
-│       ├── AGENTS.md         ← Codex workflow instructions (generated)
+│       ├── AGENTS.md         ← copy of root AGENTS.md (Codex reads from its cwd)
 │       ├── prompt.txt        ← task description (extracted from JSONL)
 │       ├── rtl/              ← RTL files for Codex to fix (extracted from JSONL)
 │       ├── verif/            ← testbench files, read-only (extracted from JSONL)
-│       └── error_log.txt     ← accumulated iverilog errors across retries
+│       ├── error_log.txt     ← accumulated iverilog errors across retries
+│       ├── codex_attempt_N.log     ← full Codex output per attempt
+│       └── iverilog_attempt_N.log  ← full iverilog + vvp output per attempt
 ├── results_one-shot.json     ← results from one-shot mode (created at runtime)
 ├── results_retry.json        ← results from retry mode (created at runtime)
 └── .gitignore
 ```
+
+To modify Codex's workflow instructions, edit `AGENTS.md` directly — no need to touch `agent.py`.
 
 ---
 
