@@ -176,12 +176,20 @@ Results are saved to `results_<mode>.json`:
     "id": "cvdp_agentic_starlight_phoenix_comet_6246",
     "categories": ["cid016", "medium"],
     "mode": "retry",
+    "status": "pass",
     "passed": true,
     "attempts": 1,
     "output": "PASS\nPASS\n..."
   }
 ]
 ```
+
+The `status` field has three values:
+- `"pass"` — RTL compiled and simulation output contained no FAIL
+- `"fail"` — compilation or simulation failed (all attempts exhausted)
+- `"unverified"` — RTL compiled but no real testbench exists locally; the actual tests run inside the NVIDIA Docker harness (cocotb/pytest) and cannot be run without Docker
+
+The `passed` field is `true` only for `"pass"` — never for `"unverified"` — so pass rates are not inflated.
 
 The `attempts` field records how many Codex calls were made before pass or exhaustion. This enables direct comparison between one-shot and retry performance.
 
@@ -195,7 +203,7 @@ We validate with local `iverilog` + `vvp` rather than the official NVIDIA Docker
 - **Simulation check:** `vvp sim.out` — looks for `FAIL` in stdout
 - **Pass condition:** exit code 0 and no `FAIL` in simulation output
 
-This is sufficient for prototype evaluation. The testbenches embedded in the JSONL are the same ones the official harness uses.
+**Important caveat:** 15 of the 30 problems have no real testbench in the JSONL context — only a stub (`module verif_placeholder; endmodule`). Their actual tests are cocotb/pytest scripts that run inside the NVIDIA Docker harness. For these problems, we run Codex to fix/generate the RTL and confirm it compiles, but mark the result `"unverified"` rather than PASS. The real score for these can only be determined by running the official harness.
 
 ---
 
@@ -209,7 +217,8 @@ Run both modes on the same set of problems and compare `results_one-shot.json` v
 
 ## Future Work
 
-- **Dynamic prompts per category** — different strategies for repair (cid003), completion (cid004), generation (cid005), and verification (cid016)
+- **Dynamic prompts per category** — cid003 (repair), cid004 (completion), cid005 (generation), and cid016 (verification) each have different failure modes; tailored prompts per category should outperform the current generic escalation
+- **Official harness evaluation** — run all 30 solutions through the NVIDIA Docker harness for authoritative scoring, including the 15 currently unverified problems
 - **Multi-agent architecture** — specialized sub-agents per task type coordinated by an orchestrator
 - **Model selection** — experiment with different OpenAI models via Codex CLI `-m` flag
-- **Official harness evaluation** — run passing solutions through the NVIDIA Docker harness for official scoring
+- **Retry mode baseline** — compare retry vs one-shot pass rates across all 30 problems to validate the feedback loop hypothesis

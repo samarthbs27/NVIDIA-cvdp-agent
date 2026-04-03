@@ -124,6 +124,28 @@ def run_codex(workdir: Path, prompt: str, attempt: int) -> bool:
         return False
 
 
+# ── Testbench check ────────────────────────────────────────────────────────────
+PLACEHOLDER_CONTENTS = {
+    "",
+    "module verif_placeholder;\nendmodule",
+    "module verif_placeholder;\r\nendmodule",
+}
+
+def has_real_testbench(workdir: Path) -> bool:
+    """Return True if verif/ contains a real testbench (not just a placeholder)."""
+    verif_dir = workdir / "verif"
+    if not verif_dir.exists():
+        return False
+    tb_files = list(verif_dir.rglob("*.sv")) + list(verif_dir.rglob("*.v"))
+    if not tb_files:
+        return False
+    for f in tb_files:
+        content = f.read_text(encoding="utf-8", errors="replace").strip()
+        if content not in PLACEHOLDER_CONTENTS:
+            return True
+    return False
+
+
 # ── Validation ─────────────────────────────────────────────────────────────────
 def run_iverilog(workdir: Path) -> tuple[bool, str, str]:
     """
@@ -201,9 +223,18 @@ def solve_problem(problem: dict, mode: str) -> dict:
     # Setup workdir once — not reset between retries so Codex sees prior changes
     workdir = setup_workdir(problem)
 
+    # Detect whether a real testbench exists in verif/
+    # Problems with only a placeholder have cocotb-based tests in the Docker harness
+    # that we cannot run locally — we still generate/fix the RTL but cannot verify it
+    has_tb = has_real_testbench(workdir)
+    if not has_tb:
+        print(f"  Testbench  : NONE (placeholder only — result will be unverified)")
+
     max_iters = 1 if mode == "one-shot" else MAX_ATTEMPTS
     passed    = False
+    status    = "fail"
     output    = ""
+    attempt   = 0
 
     for attempt in range(1, max_iters + 1):
         prompt = PROMPTS[attempt]
@@ -214,25 +245,41 @@ def solve_problem(problem: dict, mode: str) -> dict:
         print(f"  [Attempt {attempt}/{max_iters}] Validating with iverilog ...", flush=True)
         passed, compile_out, sim_out = run_iverilog(workdir)
         output = compile_out + sim_out
-        log_iverilog(workdir, attempt, compile_out, sim_out, passed)
 
-        if passed:
-            print(f"  Result     : PASS ✓  (attempt {attempt})")
-            break
+        if not has_tb:
+            # No real testbench — check only that RTL compiles; simulation result is meaningless
+            compiled = (compile_out == "" or "error:" not in compile_out.lower())
+            log_iverilog(workdir, attempt, compile_out, sim_out, compiled)
+            if compiled:
+                status = "unverified"
+                print(f"  Result     : UNVERIFIED ⚠  (RTL compiles, no testbench — attempt {attempt})")
+                break
+            else:
+                print(f"  Result     : COMPILE FAIL ✗  (attempt {attempt})")
+                snippet = compile_out.strip()[:200]
+                print(f"  Output     : {snippet}")
+                write_error_log(workdir, attempt, compile_out)
         else:
-            print(f"  Result     : FAIL ✗  (attempt {attempt})")
-            snippet = output.strip()[:200]
-            print(f"  Output     : {snippet}")
-            write_error_log(workdir, attempt, output)
+            log_iverilog(workdir, attempt, compile_out, sim_out, passed)
+            if passed:
+                status = "pass"
+                print(f"  Result     : PASS ✓  (attempt {attempt})")
+                break
+            else:
+                print(f"  Result     : FAIL ✗  (attempt {attempt})")
+                snippet = output.strip()[:200]
+                print(f"  Output     : {snippet}")
+                write_error_log(workdir, attempt, output)
 
-    if not passed:
+    if status == "fail":
         print(f"\n  Final      : FAIL ✗  (all {max_iters} attempt(s) exhausted)")
 
     return {
         "id":         problem_id,
         "categories": categories,
         "mode":       mode,
-        "passed":     passed,
+        "status":     status,
+        "passed":     status == "pass",
         "attempts":   attempt,
         "output":     output.strip()[:500],
     }
@@ -276,15 +323,20 @@ def main():
         results.append(result)
 
     # ── Summary ────────────────────────────────────────────────────────────────
-    total  = len(results)
-    passed = sum(1 for r in results if r["passed"])
-    pct    = (100 * passed // total) if total else 0
+    total      = len(results)
+    n_pass     = sum(1 for r in results if r.get("status") == "pass")
+    n_unver    = sum(1 for r in results if r.get("status") == "unverified")
+    n_fail     = sum(1 for r in results if r.get("status") == "fail")
+    pct        = (100 * n_pass // total) if total else 0
+    verifiable = total - n_unver
+    pct_ver    = (100 * n_pass // verifiable) if verifiable else 0
 
     print(f"\n{'='*65}")
-    print(f"  MODE   : {mode}")
-    print(f"  TOTAL  : {total}")
-    print(f"  PASSED : {passed}  ({pct}%)")
-    print(f"  FAILED : {total - passed}")
+    print(f"  MODE       : {mode}")
+    print(f"  TOTAL      : {total}")
+    print(f"  PASSED     : {n_pass}  ({pct}% of all, {pct_ver}% of verifiable)")
+    print(f"  FAILED     : {n_fail}")
+    print(f"  UNVERIFIED : {n_unver}  (RTL compiles; no local testbench)")
 
     results_file = f"results_{mode}.json"
     with open(results_file, "w", encoding="utf-8") as f:
