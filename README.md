@@ -151,10 +151,10 @@ The dataset contains **30 benchmark problems** across four categories:
 
 | Category | Type | Count | Difficulty |
 |---|---|---|---|
-| cid003 | RTL bug fixing | 5 | mixed |
-| cid004 | Code completion | 13 | mixed |
-| cid005 | RTL generation from spec | 9 | mixed |
-| cid016 | Simulation/verification | 3 | mixed |
+| cid003 | RTL — run against testbench, classify errors by iverilog | 5 | mixed |
+| cid004 | RTL — run against testbench, classify errors by iverilog | 13 | mixed |
+| cid005 | RTL — run against testbench, classify errors by iverilog | 9 | mixed |
+| cid016 | RTL — takes cid015 as input; creates a fix and modifies RTL; simulate for fix | 3 | mixed |
 
 Overall distribution: 1 easy, 18 medium, 11 hard.
 
@@ -217,7 +217,7 @@ Run both modes on the same set of problems and compare `results_one-shot.json` v
 
 ## Future Work
 
-- **Dynamic prompts per category** — cid003 (repair), cid004 (completion), cid005 (generation), and cid016 (verification) each have different failure modes; tailored prompts per category should outperform the current generic escalation
+- **Dynamic prompts per category** — cid003, cid004, and cid005 share the same evaluation method (iverilog + testbench); their internal distinction is not documented by NVIDIA but may be derivable empirically from the dataset to inform category-specific prompt strategies
 - **Official harness evaluation** — run all 30 solutions through the NVIDIA Docker harness for authoritative scoring, including the 15 currently unverified problems
 - **Multi-agent architecture** — specialized sub-agents per task type coordinated by an orchestrator
 - **Model selection** — experiment with different OpenAI models via Codex CLI `-m` flag
