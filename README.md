@@ -16,12 +16,15 @@ This agent solves Verilog design problems from the CVDP benchmark by wrapping th
 2. Invokes Codex CLI to fix or generate the Verilog
 3. Validates the result locally using `iverilog` + `vvp`
 4. Optionally retries with escalating prompts if the solution fails
-
-No Docker. No OpenAI API calls in our code. Runs natively on Windows.
+5. Grades the final RTL using the official NVIDIA Docker harness
 
 ---
 
 ## Architecture
+
+The pipeline runs in two phases:
+
+### Phase A — RTL Generation (Windows host)
 
 ```
 agent.py  (Python orchestrator)
@@ -37,6 +40,23 @@ agent.py  (Python orchestrator)
     └── saves results_<mode>.json
 ```
 
+### Phase B — Official Grading (WSL + Docker)
+
+```
+run_benchmark.py  (NVIDIA harness runner)
+    │
+    ├── for each problem:
+    │     Container 1 (cvdp-relay-agent):
+    │       reads RTL from /prebuilt  (work/<problem_id>/rtl/)
+    │       copies to /code/rtl/       (harness working dir)
+    │
+    │     Container 2 (ghcr.io/hdl/sim/osvb):
+    │       runs iverilog + cocotb/pytest on /code/rtl/
+    │       produces result: 0 (PASS) or 1 (FAIL)
+    │
+    └── saves work/raw_result.json, work/report.json
+```
+
 ### How Codex CLI works as the agent
 
 Codex CLI is an autonomous AI agent — it reads files, writes files, and runs shell commands on its own. When invoked in a problem's working directory, it:
@@ -49,9 +69,19 @@ Codex CLI is an autonomous AI agent — it reads files, writes files, and runs s
 
 Our `agent.py` is purely an orchestrator — it sets up the environment and calls Codex as a subprocess.
 
+### Why a relay agent?
+
+The NVIDIA harness always launches an agent Docker container. Codex CLI cannot run inside Docker (it requires Node.js, npm, and interactive terminal support). The relay agent is a thin Python container that bridges the two:
+
+- Codex CLI runs on the **host** (Phase A), generating RTL into `work/<problem_id>/rtl/`
+- The relay container runs inside Docker (Phase B), copying that pre-built RTL into `/code/rtl/` where the grader expects it
+- `dataset_processor.py` is patched to inject a `/prebuilt:ro` volume mount pointing to the host RTL directory
+
 ---
 
 ## Prerequisites
+
+### Phase A (Windows)
 
 | Tool | Version | Install |
 |---|---|---|
@@ -60,69 +90,128 @@ Our `agent.py` is purely an orchestrator — it sets up the environment and call
 | Codex CLI | 0.118.0+ | `npm install -g @openai/codex` |
 | iverilog | 12.0+ | [iverilog.icarus.com](http://iverilog.icarus.com/) |
 
-**Codex CLI setup:** run `codex` once in the terminal to configure your OpenAI API key. After that, no further key management is needed.
+**Codex CLI setup:** run `codex` once to configure your OpenAI API key.
 
 **Model used:** `gpt-5.4` with `reasoning effort: xhigh` (configured via ASU OpenAI account).
+
+### Phase B (WSL + Docker)
+
+| Tool | Notes |
+|---|---|
+| WSL | Ubuntu 22.04 — required because the NVIDIA harness calls `os.sync()` (Linux-only) |
+| Docker Desktop | Must be running; install on a drive with sufficient space |
+| Python 3.12 (WSL) | For running `run_benchmark.py` inside WSL |
+
+**One-time setup in WSL** (do these once after cloning, in order):
+
+```bash
+# 1. Navigate to the repo via the WSL mount
+cd /mnt/e/cvdp/NVIDIA-cvdp-agent   # adjust drive letter if needed
+
+# 2. Create and activate a Python venv
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. Install Python dependencies
+pip install -r requirements-harness.txt
+
+# 4. Fix Docker credential helper so ghcr.io pulls work in WSL
+echo '{"auths":{}}' > ~/.docker/config.json
+
+# 5. Pull the OSS simulation image
+docker pull ghcr.io/hdl/sim/osvb
+
+# 6. Build the relay agent image (re-run if relay_agent.py or Dockerfile-agent changes)
+docker build -t cvdp-relay-agent:latest -f Dockerfile-agent .
+```
+
+> **WSL Python note:** Without the venv active, `python` in WSL resolves to the Windows pyenv shim (which has `\r\n` line endings and fails). Always activate the venv first, or use `python3` explicitly.
 
 ---
 
 ## Project Structure
 
 ```
-CVDP_agent/
-├── agent.py                  ← main orchestrator
-├── AGENTS.md                 ← Codex workflow instructions (standalone, editable)
+NVIDIA-cvdp-agent/
+├── agent.py                  ← Phase A: Codex CLI orchestrator
+├── AGENTS.md                 ← Codex workflow instructions (copied into each workdir)
+├── relay_agent.py            ← Phase B: relay container entry point
+├── Dockerfile-agent          ← builds cvdp-relay-agent:latest
+├── run_benchmark.py          ← Phase B: NVIDIA harness runner
+├── run_reporter.py           ← generates score report from raw_result.json
+├── requirements-harness.txt  ← Python deps for the harness (WSL)
+├── .env                      ← harness configuration
 ├── dataset/
 │   └── hackathon-agentic-obfuscated_final_corrected.jsonl   ← 30 benchmark problems
-├── work/                     ← per-problem working directories (created at runtime)
-│   └── <problem_id>/
-│       ├── AGENTS.md         ← copy of root AGENTS.md (Codex reads from its cwd)
-│       ├── prompt.txt        ← task description (extracted from JSONL)
-│       ├── rtl/              ← RTL files for Codex to fix (extracted from JSONL)
-│       ├── verif/            ← testbench files, read-only (extracted from JSONL)
-│       ├── error_log.txt     ← accumulated iverilog errors across retries
-│       ├── codex_attempt_N.log     ← full Codex output per attempt
-│       └── iverilog_attempt_N.log  ← full iverilog + vvp output per attempt
-├── results_one-shot.json     ← results from one-shot mode (created at runtime)
-├── results_retry.json        ← results from retry mode (created at runtime)
-└── .gitignore
+├── src/                      ← NVIDIA harness internals (dataset_processor.py patched)
+└── work/                     ← created at runtime
+    ├── <problem_id>/         ← Phase A output (agent.py workdir)
+    │   ├── AGENTS.md
+    │   ├── prompt.txt
+    │   ├── rtl/              ← RTL files fixed by Codex ← graded by Phase B
+    │   ├── verif/
+    │   ├── error_log.txt
+    │   ├── codex_attempt_N.log
+    │   └── iverilog_attempt_N.log
+    ├── <problem_name>/       ← Phase B output (NVIDIA harness workdir)
+    │   └── harness/<N>/
+    ├── raw_result.json       ← official harness results
+    └── report.json           ← formatted score report
 ```
-
-To modify Codex's workflow instructions, edit `AGENTS.md` directly — no need to touch `agent.py`.
 
 ---
 
 ## Usage
 
-Run from inside the `CVDP_agent/` directory.
+### Phase A — Generate RTL (Windows)
 
-### One-shot mode (default)
-Calls Codex once per problem, no retries:
+Run from the repo root.
+
+**One-shot mode** (Codex called once per problem):
 ```bash
 python agent.py --mode one-shot
 ```
 
-### Retry mode
-Calls Codex up to 6 times per problem with escalating prompts:
+**Retry mode** (Codex called up to 6 times with escalating prompts):
 ```bash
 python agent.py --mode retry
 ```
 
-### Run a single problem
+**Single problem:**
 ```bash
 python agent.py --mode one-shot --id cvdp_agentic_starlight_phoenix_comet_6246
 python agent.py --mode retry   --id cvdp_agentic_starlight_phoenix_comet_6246
 ```
 
-### Run first N problems
-```bash
-python agent.py --mode one-shot --limit 5
-```
-
-### Combine flags
+**First N problems:**
 ```bash
 python agent.py --mode retry --limit 5
 ```
+
+### Phase B — Official Grading (WSL)
+
+Run from `/mnt/e/cvdp/NVIDIA-cvdp-agent/` (or wherever the repo is mounted in WSL).
+
+**All problems:**
+```bash
+source venv/bin/activate
+python run_benchmark.py \
+  -f dataset/hackathon-agentic-obfuscated_final_corrected.jsonl \
+  -g cvdp-relay-agent:latest \
+  --llm
+```
+
+**Single problem:**
+```bash
+source venv/bin/activate
+python run_benchmark.py \
+  -f dataset/hackathon-agentic-obfuscated_final_corrected.jsonl \
+  -i cvdp_agentic_starlight_phoenix_comet_6246 \
+  -g cvdp-relay-agent:latest \
+  --llm
+```
+
+Phase B reads the RTL that Phase A wrote to `work/<problem_id>/rtl/`. Always run Phase A first.
 
 ---
 
@@ -162,11 +251,13 @@ Each problem in the JSONL contains:
 - `prompt` — task description
 - `context` — RTL and testbench files (self-contained, embedded as strings)
 - `patch` — ground truth fix (agent never sees this)
-- `harness` — official Docker test infrastructure (not used in our approach)
+- `harness` — official Docker test infrastructure
 
 ---
 
-## Results Format
+## Results
+
+### Phase A (local iverilog)
 
 Results are saved to `results_<mode>.json`:
 
@@ -187,23 +278,38 @@ Results are saved to `results_<mode>.json`:
 The `status` field has three values:
 - `"pass"` — RTL compiled and simulation output contained no FAIL
 - `"fail"` — compilation or simulation failed (all attempts exhausted)
-- `"unverified"` — RTL compiled but no real testbench exists locally; the actual tests run inside the NVIDIA Docker harness (cocotb/pytest) and cannot be run without Docker
+- `"unverified"` — RTL compiled but no real testbench exists locally; actual tests run inside the NVIDIA Docker harness (cocotb/pytest)
 
 The `passed` field is `true` only for `"pass"` — never for `"unverified"` — so pass rates are not inflated.
 
-The `attempts` field records how many Codex calls were made before pass or exhaustion. This enables direct comparison between one-shot and retry performance.
+### Phase B (official harness)
+
+Results are saved to `work/raw_result.json`. A passing problem looks like:
+
+```json
+{
+  "result": 0,
+  "errors": 0
+}
+```
+
+`result: 0` = PASS, `result: 1` = FAIL (standard Unix exit code convention).
 
 ---
 
 ## Validation
 
-We validate with local `iverilog` + `vvp` rather than the official NVIDIA Docker harness:
+### Local (Phase A)
 
 - **Compile check:** `iverilog -g2012 -o sim.out rtl/*.sv verif/*.sv`
 - **Simulation check:** `vvp sim.out` — looks for `FAIL` in stdout
 - **Pass condition:** exit code 0 and no `FAIL` in simulation output
 
-**Important caveat:** 15 of the 30 problems have no real testbench in the JSONL context — only a stub (`module verif_placeholder; endmodule`). Their actual tests are cocotb/pytest scripts that run inside the NVIDIA Docker harness. For these problems, we run Codex to fix/generate the RTL and confirm it compiles, but mark the result `"unverified"` rather than PASS. The real score for these can only be determined by running the official harness.
+**Caveat:** 15 of the 30 problems have no real testbench in the JSONL — only a stub (`module verif_placeholder; endmodule`). Their actual tests are cocotb/pytest scripts inside the Docker harness. For these, Phase A marks the result `"unverified"` and Phase B provides the authoritative score.
+
+### Official (Phase B)
+
+The NVIDIA harness runs cocotb/pytest inside `ghcr.io/hdl/sim/osvb` against the RTL produced by Phase A. This is the authoritative score used for the hackathon.
 
 ---
 
@@ -217,8 +323,6 @@ Run both modes on the same set of problems and compare `results_one-shot.json` v
 
 ## Future Work
 
-- **Dynamic prompts per category** — cid003, cid004, and cid005 share the same evaluation method (iverilog + testbench); their internal distinction is not documented by NVIDIA but may be derivable empirically from the dataset to inform category-specific prompt strategies
-- **Official harness evaluation** — run all 30 solutions through the NVIDIA Docker harness for authoritative scoring, including the 15 currently unverified problems
+- **Dynamic prompts per category** — cid003, cid004, and cid005 share the same evaluation method; their internal distinction is undocumented by NVIDIA but may be derivable empirically to inform category-specific strategies
 - **Multi-agent architecture** — specialized sub-agents per task type coordinated by an orchestrator
 - **Model selection** — experiment with different OpenAI models via Codex CLI `-m` flag
-- **Retry mode baseline** — compare retry vs one-shot pass rates across all 30 problems to validate the feedback loop hypothesis

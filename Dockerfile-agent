@@ -1,0 +1,11 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Create expected mount points and set permissions
+RUN mkdir -p /code /prebuilt && chmod 777 /code /prebuilt
+
+# Copy relay agent
+COPY relay_agent.py .
+
+ENTRYPOINT ["python3", "/app/relay_agent.py"]
