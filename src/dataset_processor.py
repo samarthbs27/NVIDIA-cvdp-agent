@@ -1546,15 +1546,29 @@ class AgenticProcessor (DatasetProcessor):
         
         # Mount pre-built RTL if available (relay-agent / Codex CLI approach).
         # Harness issue_path structure:  work/<problem_name>/harness/<N>/
-        # Our agent.py output structure: work/<problem_name>_<N>/rtl/
-        # Reconstruct full problem ID by joining the last two path components.
-        _issue_num      = os.path.basename(issue_path)                            # e.g. "6246"
-        _harness_parent = os.path.dirname(os.path.dirname(issue_path))           # e.g. "work/cvdp_agentic_starlight_phoenix_comet"
-        _problem_name   = os.path.basename(_harness_parent)                      # e.g. "cvdp_agentic_starlight_phoenix_comet"
-        _work_dir       = os.path.dirname(_harness_parent)                       # e.g. "work"
-        _full_id        = f"{_problem_name}_{_issue_num}"                        # e.g. "cvdp_agentic_starlight_phoenix_comet_6246"
-        _prebuilt_rtl   = os.path.abspath(os.path.join(_work_dir, _full_id, 'rtl'))
-        if os.path.isdir(_prebuilt_rtl):
+        # Our agent.py output structure: work/<problem_name>_<JSONL_id>/rtl/
+        #   where <JSONL_id> may be zero-padded (e.g. "0001") while the harness
+        #   strips leading zeros via int() (e.g. issue_path basename == "1").
+        # We glob for any workdir matching <problem_name>_* and pick the one
+        # whose numeric suffix matches the harness issue number.
+        import glob as _glob
+        _issue_num      = os.path.basename(issue_path)                            # e.g. "1" or "6246"
+        _harness_parent = os.path.dirname(os.path.dirname(issue_path))           # e.g. ".../work/cvdp_agentic_amber_eagle_lambda"
+        _problem_name   = os.path.basename(_harness_parent)                      # e.g. "cvdp_agentic_amber_eagle_lambda"
+        _work_dir       = os.path.dirname(_harness_parent)                       # e.g. ".../work"
+        _prebuilt_rtl   = None
+        _candidate_dirs = _glob.glob(os.path.join(_work_dir, f"{_problem_name}_*"))
+        for _cand in _candidate_dirs:
+            _suffix = os.path.basename(_cand)[len(_problem_name) + 1:]           # e.g. "0001" or "6246"
+            try:
+                if int(_suffix) == int(_issue_num):
+                    _rtl_dir = os.path.abspath(os.path.join(_cand, 'rtl'))
+                    if os.path.isdir(_rtl_dir):
+                        _prebuilt_rtl = _rtl_dir
+                        break
+            except ValueError:
+                pass
+        if _prebuilt_rtl:
             _has_rtl = any(
                 fname.endswith('.sv') or fname.endswith('.v')
                 for _, _, fnames in os.walk(_prebuilt_rtl)
@@ -1565,6 +1579,20 @@ class AgenticProcessor (DatasetProcessor):
                     f'{_prebuilt_rtl}:/prebuilt:ro'
                 )
                 print(f"Mounting pre-built RTL at /prebuilt: {_prebuilt_rtl}")
+                # Also copy RTL directly into the harness rtl/ directory so the
+                # grader finds our fixed RTL even if the relay agent docker run fails
+                # (Docker Desktop WSL integration may not be available in all envs).
+                import shutil as _shutil
+                _harness_rtl = os.path.join(issue_path, 'rtl')
+                os.makedirs(_harness_rtl, exist_ok=True)
+                for _dirpath, _dirnames, _fnames in os.walk(_prebuilt_rtl):
+                    _rel = os.path.relpath(_dirpath, _prebuilt_rtl)
+                    _dest_dir = os.path.join(_harness_rtl, _rel) if _rel != '.' else _harness_rtl
+                    os.makedirs(_dest_dir, exist_ok=True)
+                    for _fname in _fnames:
+                        if _fname.endswith('.sv') or _fname.endswith('.v'):
+                            _shutil.copy2(os.path.join(_dirpath, _fname), os.path.join(_dest_dir, _fname))
+                print(f"Copied pre-built RTL directly into harness rtl/: {_harness_rtl}")
 
         # Add harness files if requested
         if hasattr(self, 'include_harness') and self.include_harness:
@@ -1764,6 +1792,12 @@ class AgenticProcessor (DatasetProcessor):
             script_file.write("#!/bin/bash\n\n")
             script_file.write(f"# Auto-generated script to run agent Docker container\n")
             script_file.write(f"# Usage: {os.path.basename(script_path)} [-d] (where -d enables debug mode with bash entrypoint)\n")
+            import shutil as _shutil_dp
+            _docker_path = _shutil_dp.which("docker") or ""
+            _docker_dir  = os.path.dirname(_docker_path) if _docker_path else ""
+            _path_prepend = f"{_docker_dir}:/usr/local/bin:/usr/bin:/bin" if _docker_dir else "/usr/local/bin:/usr/bin:/bin"
+            script_file.write(f"# Ensure docker is in PATH (detected: {_docker_path or 'not found'})\n")
+            script_file.write(f"export PATH={_path_prepend}:$PATH\n")
             script_file.write(f"set -e\n\n")
             
             # Parse command line arguments for debug mode

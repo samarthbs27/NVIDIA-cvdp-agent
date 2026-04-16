@@ -102,6 +102,13 @@ The NVIDIA harness always launches an agent Docker container. Codex CLI cannot r
 | Docker Desktop | Must be running; install on a drive with sufficient space |
 | Python 3.12 (WSL) | For running `run_benchmark.py` inside WSL |
 
+**One-time setup (before any WSL commands):**
+
+Enable Docker Desktop WSL integration for your Ubuntu distro:
+> Docker Desktop → Settings → Resources → WSL Integration → toggle on for Ubuntu-22.04
+
+Without this, the Docker binary inside WSL is a non-functional Windows shim and all benchmark runs will silently fail (exit code 1, 0/30 score).
+
 **One-time setup in WSL** (do these once after cloning, in order):
 
 ```bash
@@ -123,6 +130,11 @@ docker pull ghcr.io/hdl/sim/osvb
 
 # 6. Build the relay agent image (re-run if relay_agent.py or Dockerfile-agent changes)
 docker build -t cvdp-relay-agent:latest -f Dockerfile-agent .
+```
+
+Verify Docker is working before running the benchmark:
+```bash
+docker ps   # should return an empty list, not an error
 ```
 
 > **WSL Python note:** Without the venv active, `python` in WSL resolves to the Windows pyenv shim (which has `\r\n` line endings and fails). Always activate the venv first, or use `python3` explicitly.
@@ -284,16 +296,29 @@ The `passed` field is `true` only for `"pass"` — never for `"unverified"` — 
 
 ### Phase B (official harness)
 
-Results are saved to `work/raw_result.json`. A passing problem looks like:
+Results are saved to `work/raw_result.json` and a formatted report to `work/report.txt`.
 
-```json
-{
-  "result": 0,
-  "errors": 0
-}
-```
+`result: 0` = PASS, `result: 1` = FAIL, `result: 2` = execution error (standard Unix exit code convention).
 
-`result: 0` = PASS, `result: 1` = FAIL (standard Unix exit code convention).
+**One-shot results (official harness, all 30 problems):**
+
+| Metric | Value |
+|---|---|
+| Problems passed | 15 / 30 (50.0%) |
+| Tests passed | 20 / 35 (57.1%) |
+
+| Difficulty | Pass | Total | Rate |
+|---|---|---|---|
+| Easy | 0 | 1 | 0% |
+| Medium | 12 | 18 | 66.7% |
+| Hard | 3 | 11 | 27.3% |
+
+| Category | Pass | Total | Rate |
+|---|---|---|---|
+| cid016 | 3 | 3 | 100% |
+| cid003 | 2 | 5 | 40% |
+| cid004 | 6 | 13 | 46.2% |
+| cid005 | 4 | 9 | 44.4% |
 
 ---
 

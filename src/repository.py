@@ -330,6 +330,12 @@ class Repository:
             script_file.write("#!/bin/bash\n\n")
             script_file.write(f"# Auto-generated script to run harness Docker container\n")
             script_file.write(f"# Usage: {os.path.basename(script_path)} [-d] (where -d enables debug mode with bash entrypoint)\n")
+            import shutil as _shutil_repo
+            _docker_path = _shutil_repo.which("docker") or ""
+            _docker_dir  = os.path.dirname(_docker_path) if _docker_path else ""
+            _path_prepend = f"{_docker_dir}:/usr/local/bin:/usr/bin:/bin" if _docker_dir else "/usr/local/bin:/usr/bin:/bin"
+            script_file.write(f"# Ensure docker is in PATH (detected: {_docker_path or 'not found'})\n")
+            script_file.write(f"export PATH={_path_prepend}:$PATH\n")
             script_file.write(f"set -e\n\n")
             
             # Parse command line arguments for debug mode
@@ -466,7 +472,13 @@ class Repository:
             # If agent_image is provided, add a comment about which image will be used
             if agent_image:
                 script_file.write(f"# Using agent image: {agent_image}\n")
-                
+
+            import shutil as _shutil_repo
+            _docker_path = _shutil_repo.which("docker") or ""
+            _docker_dir  = os.path.dirname(_docker_path) if _docker_path else ""
+            _path_prepend = f"{_docker_dir}:/usr/local/bin:/usr/bin:/bin" if _docker_dir else "/usr/local/bin:/usr/bin:/bin"
+            script_file.write(f"# Ensure docker is in PATH (detected: {_docker_path or 'not found'})\n")
+            script_file.write(f"export PATH={_path_prepend}:$PATH\n")
             script_file.write(f"set -e\n\n")
             
             # Parse command line arguments for debug mode
@@ -713,6 +725,8 @@ class Repository:
         try:
             result = self.obj_harness(self.issue_path, self.logfile, uut)
         except:
+            import traceback
+            traceback.print_exc()
             result = ([{"result" : 1, "log" : None, "error_msg": "Failed to execute objective harness", "execution": 0}], 1)
             print(f"[ERROR] Failed to execute {uut} harness...")
 
