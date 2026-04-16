@@ -322,47 +322,31 @@ Results are saved to `work/raw_result.json` and a formatted report to `work/repo
 
 `result: 0` = PASS, `result: 1` = FAIL, `result: 2` = execution error (standard Unix exit code convention).
 
-**One-shot, no harness spec — baseline (official harness, all 30 problems):**
+**Full results across all three configurations (official harness, all 30 problems):**
 
-| Metric | Value |
-|---|---|
-| Problems passed | 15 / 30 (50.0%) |
-| Tests passed | 20 / 35 (57.1%) |
-
-| Difficulty | Pass | Total | Rate |
+| Metric | Baseline (one-shot) | One-shot + harness spec | Retry + harness spec |
 |---|---|---|---|
-| Easy | 0 | 1 | 0% |
-| Medium | 12 | 18 | 66.7% |
-| Hard | 3 | 11 | 27.3% |
+| Problems passed | 15 / 30 (50.0%) | 16 / 30 (53.3%) | **18 / 30 (60.0%)** |
+| Tests passed | 20 / 35 (57.1%) | 21 / 35 (60.0%) | **23 / 35 (65.7%)** |
 
-| Category | Pass | Total | Rate |
+| Difficulty | Baseline | One-shot + harness | Retry + harness |
 |---|---|---|---|
-| cid016 | 3 | 3 | 100% |
-| cid003 | 2 | 5 | 40% |
-| cid004 | 6 | 13 | 46.2% |
-| cid005 | 4 | 9 | 44.4% |
+| Easy | 0 / 1 (0%) | 0 / 1 (0%) | 0 / 1 (0%) |
+| Medium | 12 / 18 (66.7%) | 11 / 18 (61.1%) | 11 / 18 (61.1%) |
+| Hard | 3 / 11 (27.3%) | 5 / 11 (45.5%) | **7 / 11 (63.6%)** |
 
-**One-shot, harness spec enabled — ablation (official harness, all 30 problems):**
+| Category | Baseline | One-shot + harness | Retry + harness |
+|---|---|---|---|
+| cid016 | 3 / 3 (100%) | 3 / 3 (100%) | 3 / 3 (100%) |
+| cid003 | 2 / 5 (40%) | 3 / 5 (60%) | 3 / 5 (60%) |
+| cid004 | 6 / 13 (46.2%) | 6 / 13 (46.2%) | **8 / 13 (61.5%)** |
+| cid005 | 4 / 9 (44.4%) | 4 / 9 (44.4%) | 4 / 9 (44.4%) |
 
-| Metric | Value | vs baseline |
-|---|---|---|
-| Problems passed | 16 / 30 (53.3%) | +1 |
-| Tests passed | 21 / 35 (60.0%) | +1 |
-
-| Difficulty | Pass | Total | Rate | vs baseline |
-|---|---|---|---|---|
-| Easy | 0 | 1 | 0% | — |
-| Medium | 11 | 18 | 61.1% | -1 |
-| Hard | 5 | 11 | 45.5% | **+2** |
-
-| Category | Pass | Total | Rate | vs baseline |
-|---|---|---|---|---|
-| cid016 | 3 | 3 | 100% | — |
-| cid003 | 3 | 5 | 60% | +1 |
-| cid004 | 6 | 13 | 46.2% | — |
-| cid005 | 4 | 9 | 44.4% | — |
-
-Harness spec most benefits hard problems (+2). `azure_sapphire_tiger` (cid005, medium) flipped from 2/3 FAIL to 3/3 PASS. Three problems (`forest_fountain_river`, `meadow_canyon_sunrise`, `echo_obsidian_lunar`) return result=2 (harness execution error) in all runs.
+**Key findings:**
+- Retry mode outperforms one-shot: +3 problems overall, hard problems improve most (27% → 64%)
+- Harness spec helps hard problems: without it, hard = 27%; with it (retry), hard = 64%
+- Retry regressions: `falcon_willow_dragon` and `azure_sapphire_tiger` passed in one-shot but failed in retry — retry overwrote working RTL. A future improvement would skip retry for problems that already passed one-shot
+- `forest_fountain_river` (easy, cid004) returns result=2 (harness execution error) in all runs — infrastructure issue unrelated to RTL quality
 
 ---
 

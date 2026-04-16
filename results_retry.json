@@ -1,0 +1,362 @@
+[
+  {
+    "id": "cvdp_agentic_starlight_phoenix_comet_6246",
+    "categories": [
+      "cid016",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile test.vcd opened for output.\nPASS\nPASS"
+  },
+  {
+    "id": "cvdp_agentic_glacier_amber_cosmic_3144",
+    "categories": [
+      "cid016",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile test.vcd opened for output.\nPASS\nPASS"
+  },
+  {
+    "id": "cvdp_agentic_diamond_dolphin_whisper_4792",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_diamond_dolphin_whisper_4792/rtl/aes_encrypt.sv:460: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_diamond_dolphin_whisper_4792/rtl/aes_encrypt.sv:460: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_diamond_dolphin_whisper_4792/rtl/aes_encrypt.sv:460: sorry: constant selects in always_* processes are not currently supported (all bi"
+  },
+  {
+    "id": "cvdp_agentic_amber_prism_tiger_1687",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile test.vcd opened for output.\nPASS\nPASS"
+  },
+  {
+    "id": "cvdp_agentic_eagle_jade_forest_0681",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_eagle_jade_forest_0681/rtl/aes_encrypt.sv:219: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_eagle_jade_forest_0681/rtl/aes_encrypt.sv:219: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_eagle_jade_forest_0681/rtl/aes_encrypt.sv:219: sorry: constant selects in always_* processes are not currently supported (all bits will be include"
+  },
+  {
+    "id": "cvdp_agentic_ivory_cloud_ocean_3516",
+    "categories": [
+      "cid003",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_ivory_cloud_ocean_3516/verif/tb_des_enc.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_meadow_river_prism_8091",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_meadow_river_prism_8091/verif/tb_des_dec.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_meadow_marble_castle_0301",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_meadow_marble_castle_0301/verif/tb_3des_enc.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_azure_sapphire_tiger_4476",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_azure_sapphire_tiger_4476/verif/tb_3des_dec.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_eagle_crystal_lunar_2638",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_sunrise_ivory_glacier_9089",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_breeze_velvet_violet_7060",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_forest_fountain_river_0702",
+    "categories": [
+      "cid004",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_crimson_river_butterfly_1181",
+    "categories": [
+      "cid016",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "fail",
+    "passed": false,
+    "attempts": 6,
+    "output": "work/cvdp_agentic_crimson_river_butterfly_1181/verif/tb_fifo_buffer.sv:6: syntax error\nwork/cvdp_agentic_crimson_river_butterfly_1181/verif/tb_fifo_buffer.sv:6: error: syntax error in parameter list."
+  },
+  {
+    "id": "cvdp_agentic_nebula_nova_castle_8184",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile direct_map_cachet.vcd opened for output.\n\n[WRITE_TASK] @time 25000\n  -> index=2 (0x2), offset=0 (0x0), tag_in=00000, data_in=3524\n  -> comp=1, write=1, valid_in=1\n  -> hit=0, dirty=0, tag_out=00000, data_out=0, valid=1, error=0\n\n[READ_TASK] @time 45000\n  -> index=2 (0x2), offset=0 (0x0), tag_in=00000\n  -> comp=1, write=0\n  -> hit=1, dirty=0, tag_out=00000, data_out=3524, valid=1, error=0\n  -> [Pass] Data matched.\n\n[WRITE_TASK] @time 65000\n  -> index=2 (0x2), offset=0 (0x0), ta"
+  },
+  {
+    "id": "cvdp_agentic_ember_meadow_sunrise_1765",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_garden_sapphire_amber_0307",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Starting Modified Testbench with Correct Sampling...\n\nTC1: Adding event ID=1 with timestamp=30, priority=2\nTC1 Outputs: event_triggered=1, triggered_event_id=1, error=0, current_time=30, log_event_time=30, log_event_id=1\n\nTC2: Adding event ID=2 then canceling it\nTC2 Outputs: event_triggered=0, triggered_event_id=0, error=0, current_time=80, log_event_time=0, log_event_id=0\n\nTC3: Adding event ID=3 then modifying its timestamp and priority\nTC3 Outputs: event_triggered=1, triggered_event_id=3, erro"
+  },
+  {
+    "id": "cvdp_agentic_summit_horizon_diamond_3314",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_summit_horizon_diamond_3314/verif/tb.sv:80: warning: task definition for \"Reset\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n----------------------\nThis testbench writes:\n 1 in row  0, col  0, address  7\n 2 in row  0, col  0, address  6\n 3 in row  0, col  0, address  5\n 4 in row  0, col  0, address  4\n 5 in row  0, col  0, address  3\n 6 in row  0, col  0, address  2\n 7 in row  0, col  0, address  1\n 8 in row  0, col  0, address  0\n 9 in ro"
+  },
+  {
+    "id": "cvdp_agentic_horizon_whisper_panther_1434",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_lagoon_dragon_diamond_4339",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_thunder_diamond_horizon_0119",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_comet_cloud_tiger_9313",
+    "categories": [
+      "cid003",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_falcon_willow_dragon_8753",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_thunder_compass_river_8383",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_meadow_canyon_sunrise_0439",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "TEST 1 PASS\nTEST 1 INVALID MAPPING PASS\nTEST 2 PASS\nTEST 3 PASS\nTEST 4 PASS: Invalid mapping detected"
+  },
+  {
+    "id": "cvdp_agentic_breeze_crystal_zenith_1259",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_amber_eagle_lambda_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_echo_obsidian_lunar_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 6,
+    "output": "Time=55000 PASS: a=   100 b=   100 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=0 eq=1\nTime=75000 PASS: a=    10 b=   -10 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=1 lt=0 eq=0\nTime=95000 PASS: a=    -5 b=     5 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=1 eq=0\nTime=115000 PASS: a=    50 b=    52 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=1 eq=0\nTime=135000 PASS: a=    51 b=    52 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=0 eq=1\nTime=155000 PASS: a=    53 b=    50 bypass=0 en=1 SHIFT_LEFT=1 TOL=2"
+  },
+  {
+    "id": "cvdp_agentic_compass_breeze_obsidian_0016",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_diamond_orbit_valley_0001",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 1,
+    "output": ""
+  }
+]

@@ -1,6 +1,5 @@
 # Runtime output
 work/
-results_*.json
 *.vcd
 
 # Python
