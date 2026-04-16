@@ -79,17 +79,77 @@ def setup_workdir(problem: dict) -> Path:
     # with Codex CLI on Windows.
     (workdir / "AGENTS.md").write_text(AGENTS_MD_TEMPLATE, encoding="utf-8")
 
+    # Write only test_*.py files from the harness field so Codex can read the
+    # official spec. Allowlist (not blocklist) so unexpected file types are
+    # excluded by default.
+    # Explicitly excluded: test_runner.py — Docker infrastructure (reads env vars
+    # like VERILOG_SOURCES, TOPLEVEL, SIM; not an RTL spec); harness_library.py,
+    # .env, docker-compose.yml, shell scripts — all Docker-only, not useful to Codex.
+    _HARNESS_EXCLUDE = {"test_runner.py"}
+    for rel_path, content in problem.get("harness", {}).items():
+        fname = os.path.basename(rel_path)
+        if not (fname.startswith("test_") and fname.endswith(".py")):
+            continue
+        if fname in _HARNESS_EXCLUDE:
+            continue
+        full_path = workdir / "harness" / rel_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        full_path.write_text(content, encoding="utf-8")
+
     return workdir
 
 
 # ── Error log ──────────────────────────────────────────────────────────────────
 def write_error_log(workdir: Path, attempt: int, output: str) -> None:
-    """Append iverilog output from a failed attempt to error_log.txt."""
+    """Write iverilog output for a failed attempt to error_log.txt.
+    Keeps only the last 2 entries to prevent runaway context growth across retries.
+    """
     log_path = workdir / "error_log.txt"
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(f"=== Attempt {attempt} failed ===\n")
-        f.write(output.strip())
-        f.write("\n\n")
+    new_entry = f"=== Attempt {attempt} failed ===\n{output.strip()}\n\n"
+
+    if log_path.exists():
+        existing = log_path.read_text(encoding="utf-8")
+        # Split on entry boundaries, drop oldest if we already have 2
+        entries = [e for e in existing.split("=== Attempt ") if e.strip()]
+        entries = ["=== Attempt " + e for e in entries]
+        if len(entries) >= 2:
+            entries = entries[-1:]  # keep only the most recent
+        log_path.write_text("".join(entries) + new_entry, encoding="utf-8")
+    else:
+        log_path.write_text(new_entry, encoding="utf-8")
+
+
+# ── Quota / rate-limit detection ──────────────────────────────────────────────
+# Patterns that indicate Codex hit an API usage or rate limit rather than
+# producing wrong RTL. Checked against codex_attempt_N.log after every failed run.
+QUOTA_PATTERNS = [
+    "exceeded your current quota",
+    "insufficient_quota",
+    "rate_limit_exceeded",
+    "RateLimitError",
+    "you have run out",
+    "billing",
+    "rate limit",
+    "quota",
+    "HTTP 429",
+    "status 429",
+]
+
+def detect_quota_error(log_path: Path) -> str:
+    """
+    Scan codex_attempt_N.log for API quota or rate-limit error strings.
+    Returns the matching line if found, empty string otherwise.
+    """
+    if not log_path.exists():
+        return ""
+    try:
+        for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
+            line_lower = line.lower()
+            if any(p.lower() in line_lower for p in QUOTA_PATTERNS):
+                return line.strip()
+    except Exception:
+        pass
+    return ""
 
 
 # ── Codex ──────────────────────────────────────────────────────────────────────
@@ -120,6 +180,14 @@ def run_codex(workdir: Path, prompt: str, attempt: int) -> bool:
     except subprocess.TimeoutExpired:
         with open(log_path, "a", encoding="utf-8") as f:
             f.write("\n[TIMED OUT after 10 min]\n")
+        # Warn the next attempt that RTL files may be truncated mid-write.
+        # Without this note, Codex would see a syntax error and try to "fix"
+        # what looks like a logic bug, not knowing the real cause was a kill.
+        write_error_log(workdir, attempt,
+            "WARNING: This attempt timed out and was killed after 10 minutes. "
+            "RTL files in rtl/ may be truncated or incomplete due to the kill. "
+            "Re-read prompt.txt and harness/src/ from scratch before making changes "
+            "— do not try to patch what is currently in rtl/ without verifying it first.")
         print("  [codex timed out after 10 min]")
         return False
 
@@ -242,6 +310,18 @@ def solve_problem(problem: dict, mode: str) -> dict:
 
         run_codex(workdir, prompt, attempt)
 
+        # Check for API quota / rate-limit before spending time on iverilog.
+        # If Codex hit a quota wall, further retries won't help — bail out early.
+        log_path = workdir / f"codex_attempt_{attempt}.log"
+        quota_msg = detect_quota_error(log_path)
+        if quota_msg:
+            print(f"  [!] API quota/rate-limit detected: {quota_msg[:120]}")
+            write_error_log(workdir, attempt,
+                f"API quota or rate-limit hit — Codex could not complete this attempt.\n"
+                f"Details: {quota_msg}")
+            status = "quota"
+            break
+
         print(f"  [Attempt {attempt}/{max_iters}] Validating with iverilog ...", flush=True)
         passed, compile_out, sim_out = run_iverilog(workdir)
         output = compile_out + sim_out
@@ -318,15 +398,21 @@ def main():
     WORK_DIR.mkdir(exist_ok=True)
     results = []
 
+    quota_hit = False
     for problem in problems:
         result = solve_problem(problem, mode)
         results.append(result)
+        if result.get("status") == "quota":
+            print("\n  [!] API quota exhausted — stopping run. Re-run when quota resets.")
+            quota_hit = True
+            break
 
     # ── Summary ────────────────────────────────────────────────────────────────
     total      = len(results)
     n_pass     = sum(1 for r in results if r.get("status") == "pass")
     n_unver    = sum(1 for r in results if r.get("status") == "unverified")
     n_fail     = sum(1 for r in results if r.get("status") == "fail")
+    n_quota    = sum(1 for r in results if r.get("status") == "quota")
     pct        = (100 * n_pass // total) if total else 0
     verifiable = total - n_unver
     pct_ver    = (100 * n_pass // verifiable) if verifiable else 0
@@ -337,6 +423,8 @@ def main():
     print(f"  PASSED     : {n_pass}  ({pct}% of all, {pct_ver}% of verifiable)")
     print(f"  FAILED     : {n_fail}")
     print(f"  UNVERIFIED : {n_unver}  (RTL compiles; no local testbench)")
+    if n_quota:
+        print(f"  QUOTA HIT  : {n_quota}  (API quota exhausted — run stopped early)")
 
     results_file = f"results_{mode}.json"
     with open(results_file, "w", encoding="utf-8") as f:

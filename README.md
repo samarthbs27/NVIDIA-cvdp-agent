@@ -12,8 +12,8 @@ Built as part of **ASU VLSI Design Automation (Mini Project 2)** under Prof. Chh
 
 This agent solves Verilog design problems from the CVDP benchmark by wrapping the [Codex CLI](https://github.com/openai/codex) as an autonomous AI agent. For each problem, it:
 
-1. Extracts RTL and testbench files from the dataset
-2. Invokes Codex CLI to fix or generate the Verilog
+1. Extracts RTL, testbench, and official harness test files from the dataset
+2. Invokes Codex CLI to fix or generate the Verilog, using the harness test files as its primary specification
 3. Validates the result locally using `iverilog` + `vvp`
 4. Optionally retries with escalating prompts if the solution fails
 5. Grades the final RTL using the official NVIDIA Docker harness
@@ -32,8 +32,10 @@ agent.py  (Python orchestrator)
     ├── reads JSONL dataset
     ├── for each problem:
     │     setup_workdir()   →  extracts rtl/, verif/, prompt.txt, AGENTS.md
+    │                          also writes harness/src/*.py (official test specs)
     │     for attempt 1..6:
     │       run_codex()     →  `codex exec` fixes RTL autonomously
+    │                          Codex reads harness/src/ as primary spec
     │       run_iverilog()  →  validates with iverilog + vvp
     │       if pass → done
     │       else    → write error_log.txt → next attempt
@@ -162,6 +164,7 @@ NVIDIA-cvdp-agent/
     │   ├── prompt.txt
     │   ├── rtl/              ← RTL files fixed by Codex ← graded by Phase B
     │   ├── verif/
+    │   ├── harness/src/      ← official cocotb/pytest test specs (read-only for Codex)
     │   ├── error_log.txt
     │   ├── codex_attempt_N.log
     │   └── iverilog_attempt_N.log
@@ -246,6 +249,24 @@ The working directory is **not reset between retries** — Codex sees its own pr
 
 ---
 
+## Harness Spec Visibility
+
+Each problem's JSONL `harness` field contains the official cocotb/pytest test files that the NVIDIA Docker grader runs. These files specify the exact RTL behavior required: which ports are driven, what input sequences are applied, what output values are expected, and what assertions must pass.
+
+`setup_workdir()` writes these test files into `workdir/harness/src/` so Codex can read them as its primary specification. Only `test_*.py` files are written (allowlist). Excluded: `.sh`, `.yml`, `Makefile` (Docker infra), and `test_runner.py` (reads Docker env vars like `VERILOG_SOURCES` and `TOPLEVEL` — infrastructure, not RTL spec).
+
+`AGENTS.md` instructs Codex to read `harness/src/` before touching any RTL, and explicitly forbids running or modifying those files (they require Docker; they are the ground truth).
+
+**Is this fair?** The harness test files are embedded in the publicly distributed JSONL — they are not hidden from participants. Every team that downloads the dataset already has them. However, NVIDIA's standard agentic evaluation never passes them to the agent container: `AgenticProcessor.include_harness` is hardcoded `False` in the official repository with no parameter to override it (confirmed from the official GitHub). The `include_harness` flag exists only in `CopilotProcessor` (a separate refinement-mode track).
+
+Our results are therefore reported in two configurations:
+- **Without harness spec** — matches the official agentic evaluation; directly comparable to other teams
+- **With harness spec** — ablation study using publicly available JSONL data; not the standard setup
+
+**Validated improvement:** `cvdp_agentic_ivory_cloud_ocean_3516` (cid003, hard) flipped from FAIL to PASS in one-shot mode once Codex could read `test_des_enc.py` as its spec.
+
+---
+
 ## Dataset
 
 The dataset contains **30 benchmark problems** across four categories:
@@ -287,12 +308,13 @@ Results are saved to `results_<mode>.json`:
 ]
 ```
 
-The `status` field has three values:
+The `status` field has four values:
 - `"pass"` — RTL compiled and simulation output contained no FAIL
 - `"fail"` — compilation or simulation failed (all attempts exhausted)
 - `"unverified"` — RTL compiled but no real testbench exists locally; actual tests run inside the NVIDIA Docker harness (cocotb/pytest)
+- `"quota"` — Codex hit an API quota or rate-limit error; run stopped early
 
-The `passed` field is `true` only for `"pass"` — never for `"unverified"` — so pass rates are not inflated.
+The `passed` field is `true` only for `"pass"` — never for `"unverified"` or `"quota"` — so pass rates are not inflated.
 
 ### Phase B (official harness)
 
@@ -300,7 +322,7 @@ Results are saved to `work/raw_result.json` and a formatted report to `work/repo
 
 `result: 0` = PASS, `result: 1` = FAIL, `result: 2` = execution error (standard Unix exit code convention).
 
-**One-shot results (official harness, all 30 problems):**
+**One-shot, no harness spec — baseline (official harness, all 30 problems):**
 
 | Metric | Value |
 |---|---|
@@ -319,6 +341,28 @@ Results are saved to `work/raw_result.json` and a formatted report to `work/repo
 | cid003 | 2 | 5 | 40% |
 | cid004 | 6 | 13 | 46.2% |
 | cid005 | 4 | 9 | 44.4% |
+
+**One-shot, harness spec enabled — ablation (official harness, all 30 problems):**
+
+| Metric | Value | vs baseline |
+|---|---|---|
+| Problems passed | 16 / 30 (53.3%) | +1 |
+| Tests passed | 21 / 35 (60.0%) | +1 |
+
+| Difficulty | Pass | Total | Rate | vs baseline |
+|---|---|---|---|---|
+| Easy | 0 | 1 | 0% | — |
+| Medium | 11 | 18 | 61.1% | -1 |
+| Hard | 5 | 11 | 45.5% | **+2** |
+
+| Category | Pass | Total | Rate | vs baseline |
+|---|---|---|---|---|
+| cid016 | 3 | 3 | 100% | — |
+| cid003 | 3 | 5 | 60% | +1 |
+| cid004 | 6 | 13 | 46.2% | — |
+| cid005 | 4 | 9 | 44.4% | — |
+
+Harness spec most benefits hard problems (+2). `azure_sapphire_tiger` (cid005, medium) flipped from 2/3 FAIL to 3/3 PASS. Three problems (`forest_fountain_river`, `meadow_canyon_sunrise`, `echo_obsidian_lunar`) return result=2 (harness execution error) in all runs.
 
 ---
 
