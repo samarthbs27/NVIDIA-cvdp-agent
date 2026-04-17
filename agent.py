@@ -14,6 +14,7 @@ Usage:
   python agent.py --mode one-shot            # call codex once per problem
   python agent.py --mode retry               # call codex up to 6 times per problem
   python agent.py --id <problem_id>          # run a single problem
+  python agent.py --ids id1 id2 id3          # run a specific set of problems
   python agent.py --limit 5                  # run first N problems
   python agent.py --mode retry --limit 5     # combine flags
 """
@@ -388,6 +389,23 @@ def main():
         problems = [p for p in problems if p["id"] == target]
         if not problems:
             print(f"Problem '{target}' not found in dataset")
+            sys.exit(1)
+
+    # --ids id1 id2 ...  →  run a specific set of problems (all remaining argv after --ids)
+    if "--ids" in sys.argv:
+        idx    = sys.argv.index("--ids") + 1
+        # collect all args after --ids that don't start with --
+        targets = []
+        while idx < len(sys.argv) and not sys.argv[idx].startswith("--"):
+            targets.append(sys.argv[idx])
+            idx += 1
+        if not targets:
+            print("--ids requires at least one problem ID")
+            sys.exit(1)
+        problems = [p for p in problems if p["id"] in targets]
+        missing  = set(targets) - {p["id"] for p in problems}
+        if missing:
+            print(f"Problems not found in dataset: {', '.join(sorted(missing))}")
             sys.exit(1)
 
     # --limit N  →  run only the first N problems

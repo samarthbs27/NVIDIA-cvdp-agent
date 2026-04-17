@@ -144,6 +144,71 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 ## Session Log
 
+### Session 12 — 2026-04-16
+
+**Topic:** Full diagnosis of all 10 failing problems; AGENTS.md RTL design rules; `--ids` flag; Phase A vs Phase B workdir structure
+
+**Key discoveries:**
+
+1. **All 10 failing problems diagnosed from Phase B harness reports.** Two groups:
+   - **Group 1 — Phase A said PASS, Phase B disagrees (2 problems):** `ivory_cloud_ocean` and `azure_sapphire_tiger` — local testbenches checked functional correctness only; the cocotb harness additionally asserts exact latency. RTL logic is correct but one pipeline register too deep (17 vs 16 cycles; 49 vs 48 cycles). These are false positives from Phase A.
+   - **Group 2 — Phase A said UNVERIFIED, Phase B reveals the bug (8 problems):** placeholder testbenches locally; Phase B reveals actual RTL bugs.
+
+2. **Complete failure catalogue (all 10):**
+   - `forest_fountain_river` — `o_clock_est` always 0; count accumulation never fires
+   - `ivory_cloud_ocean` — DES latency 17 vs required 16 cycles
+   - `azure_sapphire_tiger` — 3DES-dec latency 49 vs required 48 cycles
+   - `sunrise_ivory_glacier` — BST delete: off-by-1 for smallest key; off-by-large-factor for largest key; tree corrupted on key-not-found
+   - `breeze_velvet_violet` — BST delete-smallest drives `out_keys` to high-Z when ARRAY_SIZE=6
+   - `ember_meadow_sunrise` — `up_led` never asserted while elevator moves upward
+   - `lagoon_dragon_diamond` — `o_proc_detected` always 0; sequence detection logic never fires; 0/50 parameterized tests pass
+   - `thunder_diamond_horizon` — PRBS polynomial wrong; descrambled data corrupted; bypass_mode and bit_count pass but sequential test fails for all 73 parameter combinations
+   - `falcon_willow_dragon` — `pslverr` never asserted on invalid APB address
+   - `compass_breeze_obsidian` — order matching latency 22 vs required 21 cycles
+
+3. **Most common failure class: latency/timing errors.** 5 of 10 failing problems have off-by-N cycle counts. LLMs get logic correct but miscount pipeline register stages.
+
+4. **AGENTS.md strengthened with two improvements:**
+   - Step 2 now includes an explicit pre-RTL checklist: extract every asserted signal, every exact expected value, and all latency/cycle-count constraints from `harness/src/` before touching `rtl/`
+   - New "RTL Design Rules" section with 5 rules derived from failure analysis: (1) count pipeline stages for latency, (2) default assignments to prevent high-Z, (3) trace accumulation enables, (4) check every asserted output signal, (5) algorithms must match spec exactly
+
+5. **`--ids` flag added to `agent.py`.** Accepts a list of problem IDs after the flag (reads until the next `--` argument). Enables targeted re-runs of specific problems without running all 30. Usage: `python agent.py --mode retry --ids id1 id2 id3`.
+
+6. **Phase A vs Phase B workdir structure clarified:**
+   - `work/<problem_name>_<N>/` (with number) = Phase A workdir, created by `agent.py`, uses full JSONL `id`
+   - `work/<problem_name>/harness/<N>/` (without number) = Phase B workdir, created by NVIDIA harness, splits on last `_` to get issue number
+   - Both always exist together for every problem after a full run
+
+7. **`setup_workdir()` always starts clean.** Confirmed: it calls `shutil.rmtree()` on the existing workdir before re-extracting from JSONL. Re-running `agent.py --ids ...` does not require manual workdir cleanup.
+
+**Files changed this session:**
+- `AGENTS.md` — Step 2 now has explicit extraction checklist; new "RTL Design Rules" section (5 rules)
+- `agent.py` — `--ids` flag added; usage comment updated
+- `README.md` — `--ids` documented in Usage section; Harness Spec Visibility section updated with extraction checklist and RTL design rules summary
+
+**Re-run results (10 failing problems, retry mode, AGENTS.md v2):**
+- 4 of 10 flipped FAIL → PASS: `forest_fountain_river` (cid004, easy), `ivory_cloud_ocean` (cid003, hard), `azure_sapphire_tiger` (cid005, medium), `falcon_willow_dragon` (cid004, hard)
+- New overall: **24/30 (80.0%)** problems passed, **29/35 (82.9%)** tests passed
+- By difficulty: Easy 1/1 (100%), Medium 14/18 (77.8%), Hard 9/11 (81.8%)
+- By category: cid016 3/3 (100%), cid003 5/5 (100%), cid004 10/13 (76.9%), cid005 6/9 (66.7%)
+
+**Remaining 6 failures (after AGENTS.md v2 re-run):**
+- `breeze_velvet_violet` — BST delete-smallest: `out_keys` goes high-Z when ARRAY_SIZE=6
+- `compass_breeze_obsidian` — order matching latency 22 vs required 21 cycles
+- `ember_meadow_sunrise` — `up_led` never asserted while elevator moves upward
+- `lagoon_dragon_diamond` — `o_proc_detected` always 0; simulation hangs (60-second timeout)
+- `sunrise_ivory_glacier` — BST delete: off-by-1 for smallest key, tree corruption on key-not-found
+- `thunder_diamond_horizon` — PRBS polynomial wrong; all 73 parameter combinations fail sequential test
+
+**Status at end of session:** Best result: **24/30 (80.0%)**. Achieved via targeted re-run of 10 failing problems with improved AGENTS.md (extraction checklist + 5 RTL design rules).
+
+**Next steps:**
+- Implement 3 agent.py improvements: (1) `--reasoning-effort high` flag in codex exec, (2) don't break retry loop on compile-only for unverified problems, (3) treat simulation timeout as FAIL and feed to error_log.txt
+- Re-run 6 remaining failures after agent.py improvements
+- Update CLAUDE.md Open Questions with remaining failure analysis
+
+---
+
 ### Session 11 — 2026-04-16
 
 **Topic:** Diagnosing result=2 (infrastructure error) for 3 persistent failures; `cocotb.runner` removed in cocotb 2.0; pin to 1.9.0; improved to 20/30
@@ -646,15 +711,18 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 | Quota detection stops attempt loop and full run | `detect_quota_error()` scans `codex_attempt_N.log` after every `run_codex()` call; quota/rate-limit strings → `status="quota"` → bail immediately, stop problem loop in `main()` — retrying a dead API wastes tokens with no benefit | Session 10 |
 | `_HARNESS_EXCLUDE = {"test_runner.py"}` | `test_runner.py` starts with `test_` so it matched the allowlist, but it reads Docker env vars (`VERILOG_SOURCES`, `TOPLEVEL`, `SIM`) set by the harness container — it is infrastructure, not an RTL spec; explicit exclusion keeps the workdir clean | Session 10 |
 | Pin `cocotb==1.9.0` in osvb-based Dockerfiles | The osvb image ships `cocotb 2.0.0.dev0`; cocotb 2.0 removed `cocotb.runner` (added in 1.7); 3 problems use `test_runner.py` which calls `from cocotb.runner import get_runner` — pytest crashes at collection without the pin; 1.9.0 is the last stable 1.x with the runner | Session 11 |
+| `--ids` flag for targeted multi-problem re-runs | `--id` only accepts one problem; after diagnosing all 10 failures we needed to re-run a specific subset without running all 30; `--ids id1 id2 ...` collects all non-`--` args after the flag | Session 12 |
+| AGENTS.md Step 2: explicit pre-RTL extraction checklist | Diagnosis showed latency off-by-one is the most common failure class — Codex reads the harness spec but doesn't specifically search for `assert latency == N`; explicit checklist (signals, exact values, cycle counts) forces this before any RTL is touched | Session 12 |
+| AGENTS.md RTL Design Rules (5 rules) | Rules derived directly from failure patterns across all 10 failing problems: (1) count pipeline stages for latency, (2) default assignments prevent high-Z, (3) trace accumulation enables for stuck-at-0 outputs, (4) check every asserted output not just primary data, (5) algorithms must match spec exactly (PRBS, encryption) | Session 12 |
 
 ---
 
 ## Open Questions
 
-- Should prompts be dynamic per category (cid003/cid004/cid005/cid016)?
-- Why do retry regressions occur? `falcon_willow_dragon` and `azure_sapphire_tiger` passed in one-shot but failed in retry — retry mode overwrote working RTL with worse RTL across 6 attempts. Could be mitigated by skipping retry for problems that already passed one-shot.
-- `forest_fountain_river` (easy, cid004): infrastructure error fixed (cocotb 1.9.0 pin) but RTL still fails — `o_clock_est` is always 0. The Codex-generated RTL does not implement the count accumulation logic. Could re-run Phase A with harness spec (`test_clock_estimator.py`) visible to Codex now that we know the actual test.
-- `echo_obsidian_lunar` and `meadow_canyon_sunrise`: resolved — cocotb 1.9.0 pin fixed the infrastructure error and both now PASS Phase B.
+- Should prompts be dynamic per category (cid003/cid004/cid005/cid016)? Decision: not pursuing — NVIDIA does not document the distinction between cid003/004/005 and all three use identical evaluation.
+- Why do retry regressions occur? `falcon_willow_dragon` and `azure_sapphire_tiger` passed in one-shot but failed in retry — retry mode overwrote working RTL with worse RTL across 6 attempts. After AGENTS.md v2 re-run, both now PASS. Resolved for these two; general risk remains for future regressions.
+- **6 remaining failures (as of Session 12 re-run, 24/30):** `breeze_velvet_violet` (high-Z BST delete), `compass_breeze_obsidian` (latency 22 vs 21), `ember_meadow_sunrise` (up_led stuck at 0), `lagoon_dragon_diamond` (o_proc_detected always 0; sim hangs), `sunrise_ivory_glacier` (BST delete corruption), `thunder_diamond_horizon` (PRBS polynomial wrong). These are hard RTL bugs that AGENTS.md v2 did not resolve.
+- **3 agent.py improvements pending:** (1) add `--reasoning-effort high` to the codex exec command, (2) for unverified problems: don't break retry loop after compile success — allow all MAX_ATTEMPTS, (3) for unverified problems + simulation timeout: treat as FAIL, write to error_log.txt, continue retrying (currently timeout is silently ignored).
 
 ---
 
