@@ -154,7 +154,45 @@ class Repository:
 
             # Apply centralized template substitution for EDA infrastructure
             content = apply_template_substitution(content)
-                           
+
+            # Patch osvb-based Dockerfiles to install a cocotb version that
+            # includes the cocotb.runner module (added in 1.7, removed in 2.0).
+            # The osvb image ships cocotb 2.0.0.dev0 which lacks cocotb.runner.
+            # Problems using test_runner.py (from cocotb.runner import get_runner)
+            # fail at pytest collection with ModuleNotFoundError on 2.x.
+            # Fix: pin to cocotb 1.9.0 which has cocotb.runner and is stable.
+            # Handles both pip3/underscore and pip/hyphen variants in the JSONL.
+            if file.endswith('Dockerfile') and 'ghcr.io/hdl/sim/osvb' in content:
+                if 'cocotb==1.9.0' not in content:
+                    patched = False
+                    if 'pip3 install cocotb_bus' in content:
+                        content = content.replace(
+                            'RUN pip3 install cocotb_bus',
+                            'RUN pip3 install cocotb==1.9.0 cocotb_bus'
+                        )
+                        patched = True
+                    elif 'pip install cocotb-bus' in content:
+                        content = content.replace(
+                            'RUN pip install cocotb-bus',
+                            'RUN pip install cocotb==1.9.0 cocotb-bus'
+                        )
+                        patched = True
+                    # Also patch if already-upgraded (from previous attempt) to correct version
+                    elif 'pip3 install --upgrade cocotb cocotb_bus' in content:
+                        content = content.replace(
+                            'RUN pip3 install --upgrade cocotb cocotb_bus',
+                            'RUN pip3 install cocotb==1.9.0 cocotb_bus'
+                        )
+                        patched = True
+                    elif 'pip install --upgrade cocotb cocotb-bus' in content:
+                        content = content.replace(
+                            'RUN pip install --upgrade cocotb cocotb-bus',
+                            'RUN pip install cocotb==1.9.0 cocotb-bus'
+                        )
+                        patched = True
+                    if patched:
+                        print(f"Patched Dockerfile for {self.name}/{self.id}: pinned cocotb==1.9.0 to enable cocotb.runner")
+
             # Filter out rundir volumes from docker-compose.yml
             if file.endswith('docker-compose.yml'):
                 

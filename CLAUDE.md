@@ -144,6 +144,44 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 ## Session Log
 
+### Session 11 — 2026-04-16
+
+**Topic:** Diagnosing result=2 (infrastructure error) for 3 persistent failures; `cocotb.runner` removed in cocotb 2.0; pin to 1.9.0; improved to 20/30
+
+**Key discoveries:**
+
+1. **All 3 result=2 problems share the same root cause: `cocotb.runner` removed in cocotb 2.0.** `forest_fountain_river`, `echo_obsidian_lunar`, and `meadow_canyon_sunrise` all use a harness `test_runner.py` that calls `from cocotb.runner import get_runner`. The `ghcr.io/hdl/sim/osvb` image ships `cocotb 2.0.0.dev0` which does NOT have `cocotb.runner` (the module was removed from cocotb 2.0). pytest crashes at collection phase → result=2 (infrastructure error, never runs any RTL test).
+
+2. **Upgrading to cocotb 2.0.1 also fails.** First fix attempt: patch Dockerfile to `pip3 install --upgrade cocotb cocotb_bus`. This installs cocotb 2.0.1, but 2.0.x still lacks `cocotb.runner`. The error persists.
+
+3. **Fix: pin to `cocotb==1.9.0` in the harness Dockerfile.** `cocotb.runner` was added in 1.7 and existed through 1.9.x. Pinning to 1.9.0 forces pip to downgrade from 2.0.0.dev0 to 1.9.0, which has the module. Confirmed working: Docker image builds, cocotb runner launches iverilog, `test_clock_estimator.py` runs inside the container.
+
+4. **Two of three problems flip from result=2 to PASS:** `echo_obsidian_lunar` (cid003, medium) and `meadow_canyon_sunrise` (cid005, medium) both pass all cocotb tests with the RTL generated in retry mode. `forest_fountain_river` (cid004, easy) still fails — but now with a genuine RTL failure (result=1), not an infrastructure error.
+
+5. **`forest_fountain_river` RTL bug diagnosed:** `o_clock_est` output is always 0. 3/6 tests pass (reset checks `o_clock_est==0` at reset, stress/interrupt check behavior unrelated to the count), 3/6 fail (basic, multi_en, boundary — all assert `o_clock_est ≈ expected_count`). The count accumulation logic in the generated RTL is not working.
+
+6. **`restore_files()` fix handles both pip variant spellings.** The JSONL harness field uses two spellings: `pip3 install cocotb_bus` (underscore) for some problems, `pip install cocotb-bus` (hyphen) for others. Both variants are patched to pin `cocotb==1.9.0`. Also handles the "already-upgraded" case for re-runs.
+
+**Files changed this session:**
+- `src/repository.py` — `restore_files()` patches osvb-based Dockerfiles to pin `cocotb==1.9.0`; handles both pip/pip3 and underscore/hyphen variants; guard against double-patching
+
+**Phase B results after cocotb fix (retry + harness spec + cocotb pin):**
+- Overall: **20/30 (66.7%)** problems passed, **25/35 (71.4%)** tests passed
+- By difficulty: Easy 0/1 (0%), Medium 13/18 (72.2%), Hard 7/11 (63.6%)
+- By category: cid016 3/3 (100%), cid003 4/5 (80%), cid004 8/13 (61.5%), cid005 5/9 (55.6%)
+- New wins vs previous: `echo_obsidian_lunar` (cid003, medium), `meadow_canyon_sunrise` (cid005, medium) — both were result=2 (infrastructure error), now result=0 (PASS)
+- `forest_fountain_river` (cid004, easy): result=2 → result=1 (RTL failure, infrastructure fix worked but count logic is wrong in generated RTL)
+- No regressions from previous 18 PASS problems
+
+**Status at end of session:** Best result achieved: 20/30 (66.7%). All infrastructure errors resolved. The only remaining `result!=0` cases are genuine RTL failures, not harness issues.
+
+**Next steps:**
+- Commit all changes with updated results
+- Consider re-running Phase A (retry) specifically for `forest_fountain_river` with the harness spec visible, now that we can see the real test
+- Update CLAUDE.md open questions
+
+---
+
 ### Session 10 — 2026-04-15
 
 **Topic:** Quota detection integration; `test_runner.py` exclusion from harness allowlist; re-verification of `ivory_cloud_ocean`
@@ -607,6 +645,7 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 | AGENTS.md: read harness/src/, no run, no modify | Explicit instruction needed: Codex must not try to run cocotb files (need Docker) and must not modify them (ground truth spec, same rule as verif/) | Session 9 |
 | Quota detection stops attempt loop and full run | `detect_quota_error()` scans `codex_attempt_N.log` after every `run_codex()` call; quota/rate-limit strings → `status="quota"` → bail immediately, stop problem loop in `main()` — retrying a dead API wastes tokens with no benefit | Session 10 |
 | `_HARNESS_EXCLUDE = {"test_runner.py"}` | `test_runner.py` starts with `test_` so it matched the allowlist, but it reads Docker env vars (`VERILOG_SOURCES`, `TOPLEVEL`, `SIM`) set by the harness container — it is infrastructure, not an RTL spec; explicit exclusion keeps the workdir clean | Session 10 |
+| Pin `cocotb==1.9.0` in osvb-based Dockerfiles | The osvb image ships `cocotb 2.0.0.dev0`; cocotb 2.0 removed `cocotb.runner` (added in 1.7); 3 problems use `test_runner.py` which calls `from cocotb.runner import get_runner` — pytest crashes at collection without the pin; 1.9.0 is the last stable 1.x with the runner | Session 11 |
 
 ---
 
@@ -614,8 +653,8 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 - Should prompts be dynamic per category (cid003/cid004/cid005/cid016)?
 - Why do retry regressions occur? `falcon_willow_dragon` and `azure_sapphire_tiger` passed in one-shot but failed in retry — retry mode overwrote working RTL with worse RTL across 6 attempts. Could be mitigated by skipping retry for problems that already passed one-shot.
-- Why does `forest_fountain_river` (easy, cid004) persistently return result=2 (harness execution error) across all runs? Likely a testbench-level infrastructure issue unrelated to RTL quality.
-- Why did `echo_obsidian_lunar` and `meadow_canyon_sunrise` pass Phase A locally in retry but still fail Phase B? Local testbench is simpler than the cocotb harness — different test coverage.
+- `forest_fountain_river` (easy, cid004): infrastructure error fixed (cocotb 1.9.0 pin) but RTL still fails — `o_clock_est` is always 0. The Codex-generated RTL does not implement the count accumulation logic. Could re-run Phase A with harness spec (`test_clock_estimator.py`) visible to Codex now that we know the actual test.
+- `echo_obsidian_lunar` and `meadow_canyon_sunrise`: resolved — cocotb 1.9.0 pin fixed the infrastructure error and both now PASS Phase B.
 
 ---
 

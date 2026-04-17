@@ -267,6 +267,14 @@ Our results are therefore reported in two configurations:
 
 ---
 
+## Infrastructure Fix: cocotb Version Pin
+
+Three problems (`forest_fountain_river`, `echo_obsidian_lunar`, `meadow_canyon_sunrise`) persistently returned `result: 2` (harness execution error) across all runs. Root cause: their harness `test_runner.py` uses `from cocotb.runner import get_runner` — a cocotb ≥ 1.7 API that was **removed in cocotb 2.0**. The `ghcr.io/hdl/sim/osvb` image ships `cocotb 2.0.0.dev0`, so pytest crashes at collection before any test runs.
+
+Fix: `restore_files()` in `src/repository.py` patches any osvb-based Dockerfile to pin `cocotb==1.9.0` (last stable 1.x release with `cocotb.runner`). This forces pip to downgrade from 2.0.0.dev0, enabling the harness to run. After the fix, `echo_obsidian_lunar` and `meadow_canyon_sunrise` both PASS; `forest_fountain_river` now properly fails (RTL bug) rather than crashing the harness.
+
+---
+
 ## Dataset
 
 The dataset contains **30 benchmark problems** across four categories:
@@ -322,31 +330,31 @@ Results are saved to `work/raw_result.json` and a formatted report to `work/repo
 
 `result: 0` = PASS, `result: 1` = FAIL, `result: 2` = execution error (standard Unix exit code convention).
 
-**Full results across all three configurations (official harness, all 30 problems):**
+**Full results across all configurations (official harness, all 30 problems):**
 
-| Metric | Baseline (one-shot) | One-shot + harness spec | Retry + harness spec |
-|---|---|---|---|
-| Problems passed | 15 / 30 (50.0%) | 16 / 30 (53.3%) | **18 / 30 (60.0%)** |
-| Tests passed | 20 / 35 (57.1%) | 21 / 35 (60.0%) | **23 / 35 (65.7%)** |
+| Metric | Baseline (one-shot) | One-shot + harness spec | Retry + harness spec | Retry + harness + cocotb fix |
+|---|---|---|---|---|
+| Problems passed | 15 / 30 (50.0%) | 16 / 30 (53.3%) | 18 / 30 (60.0%) | **20 / 30 (66.7%)** |
+| Tests passed | 20 / 35 (57.1%) | 21 / 35 (60.0%) | 23 / 35 (65.7%) | **25 / 35 (71.4%)** |
 
-| Difficulty | Baseline | One-shot + harness | Retry + harness |
-|---|---|---|---|
-| Easy | 0 / 1 (0%) | 0 / 1 (0%) | 0 / 1 (0%) |
-| Medium | 12 / 18 (66.7%) | 11 / 18 (61.1%) | 11 / 18 (61.1%) |
-| Hard | 3 / 11 (27.3%) | 5 / 11 (45.5%) | **7 / 11 (63.6%)** |
+| Difficulty | Baseline | One-shot + harness | Retry + harness | + cocotb fix |
+|---|---|---|---|---|
+| Easy | 0 / 1 (0%) | 0 / 1 (0%) | 0 / 1 (0%) | 0 / 1 (0%) |
+| Medium | 12 / 18 (66.7%) | 11 / 18 (61.1%) | 11 / 18 (61.1%) | **13 / 18 (72.2%)** |
+| Hard | 3 / 11 (27.3%) | 5 / 11 (45.5%) | 7 / 11 (63.6%) | **7 / 11 (63.6%)** |
 
-| Category | Baseline | One-shot + harness | Retry + harness |
-|---|---|---|---|
-| cid016 | 3 / 3 (100%) | 3 / 3 (100%) | 3 / 3 (100%) |
-| cid003 | 2 / 5 (40%) | 3 / 5 (60%) | 3 / 5 (60%) |
-| cid004 | 6 / 13 (46.2%) | 6 / 13 (46.2%) | **8 / 13 (61.5%)** |
-| cid005 | 4 / 9 (44.4%) | 4 / 9 (44.4%) | 4 / 9 (44.4%) |
+| Category | Baseline | One-shot + harness | Retry + harness | + cocotb fix |
+|---|---|---|---|---|
+| cid016 | 3 / 3 (100%) | 3 / 3 (100%) | 3 / 3 (100%) | 3 / 3 (100%) |
+| cid003 | 2 / 5 (40%) | 3 / 5 (60%) | 3 / 5 (60%) | **4 / 5 (80%)** |
+| cid004 | 6 / 13 (46.2%) | 6 / 13 (46.2%) | 8 / 13 (61.5%) | 8 / 13 (61.5%) |
+| cid005 | 4 / 9 (44.4%) | 4 / 9 (44.4%) | 4 / 9 (44.4%) | **5 / 9 (55.6%)** |
 
 **Key findings:**
 - Retry mode outperforms one-shot: +3 problems overall, hard problems improve most (27% → 64%)
 - Harness spec helps hard problems: without it, hard = 27%; with it (retry), hard = 64%
+- Cocotb 1.9.0 fix: 3 problems had result=2 (infrastructure error — `cocotb.runner` removed in cocotb 2.0, osvb ships 2.0.0.dev0). Pinning to cocotb 1.9.0 in the harness Dockerfile fixed the collection crash. 2 of 3 then passed outright; `forest_fountain_river` is now a genuine RTL failure (count logic wrong) not an infrastructure error
 - Retry regressions: `falcon_willow_dragon` and `azure_sapphire_tiger` passed in one-shot but failed in retry — retry overwrote working RTL. A future improvement would skip retry for problems that already passed one-shot
-- `forest_fountain_river` (easy, cid004) returns result=2 (harness execution error) in all runs — infrastructure issue unrelated to RTL quality
 
 ---
 
