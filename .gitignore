@@ -1,6 +1,7 @@
-# Harness outputs copied to repo root (canonical versions live in work/)
+# Outputs that belong in work/ or results/ — ignore if accidentally written to root
 raw_result.json
 report.txt
+results_*.json
 
 # Work directory — include results and reports only; exclude RTL, logs, Docker artifacts
 work/*
