@@ -209,7 +209,7 @@ python3 -m venv venv && source venv/bin/activate
 pip install -r requirements-harness.txt
 echo '{"auths":{}}' > ~/.docker/config.json   # fix ghcr.io pulls in WSL
 docker pull ghcr.io/hdl/sim/osvb
-docker build -t cvdp-relay-agent:latest -f Dockerfile-agent .
+docker build -t cvdp-relay-agent:latest -f docker/Dockerfile-agent docker/
 ```
 
 ### Phase A — Generate RTL

@@ -533,7 +533,8 @@ def main():
     if n_quota:
         print(f"  QUOTA HIT  : {n_quota}  (API quota exhausted — run stopped early)")
 
-    results_file = f"results_{mode}.json"
+    results_file = Path("results") / f"results_{mode}.json"
+    results_file.parent.mkdir(exist_ok=True)
     with open(results_file, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
     print(f"\n  Saved → {results_file}")
