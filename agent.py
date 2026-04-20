@@ -51,6 +51,32 @@ PROMPTS = {
     6: "Five attempts have failed. Read error_log.txt and prompt.txt. Carefully verify every output and condition the testbench checks, and correct only what is wrong.",
 }
 
+# Prompt used for the self-review call on unverified problems (no local testbench).
+# Codex reads the harness spec + RTL, finds discrepancies, fixes them, then writes
+# a verdict to review.txt so we can decide whether to accept or retry.
+REVIEW_PROMPT = (
+    "The RTL in rtl/ has just been generated. Your task now is VERIFICATION then FIX.\n\n"
+    "Step 1 — Extract spec requirements from harness/src/:\n"
+    "  - Every output signal checked by assert and its required value\n"
+    "  - Every parameter combination tested (especially boundary values where parameters equal each other, or hit min/max)\n"
+    "  - Every latency or cycle count that is asserted (search for 'latency', 'cycles', 'assert.*==')\n"
+    "  - Any key-not-found, invalid-input, or no-change semantics\n\n"
+    "Step 2 — Trace each requirement through rtl/. Check for:\n"
+    "  - Off-by-one latency (is done/complete registered or combinational?)\n"
+    "  - Output buses that go high-Z at boundary parameter values (index overflow)\n"
+    "  - Default assignments that overwrite no-change outputs on invalid input\n"
+    "  - Algorithm constants that must use parameter variables, not hardcoded literals\n"
+    "  - FSM status outputs set only on state transitions instead of held for the full state duration\n"
+    "  - Accumulation or counter logic that never fires (stuck-at-0 outputs)\n\n"
+    "Step 3 — Fix any issues you find directly in rtl/. Then recompile with iverilog to confirm no syntax errors.\n\n"
+    "Step 4 — Write your analysis to review.txt:\n"
+    "  - List each requirement and whether the RTL satisfies it\n"
+    "  - Describe every change you made and why\n"
+    "  - End with exactly one of:\n"
+    "      REVIEW VERDICT: PASS\n"
+    "      REVIEW VERDICT: FAIL"
+)
+
 
 # ── Setup ──────────────────────────────────────────────────────────────────────
 def setup_workdir(problem: dict) -> Path:
@@ -80,16 +106,15 @@ def setup_workdir(problem: dict) -> Path:
     # with Codex CLI on Windows.
     (workdir / "AGENTS.md").write_text(AGENTS_MD_TEMPLATE, encoding="utf-8")
 
-    # Write only test_*.py files from the harness field so Codex can read the
-    # official spec. Allowlist (not blocklist) so unexpected file types are
-    # excluded by default.
-    # Explicitly excluded: test_runner.py — Docker infrastructure (reads env vars
-    # like VERILOG_SOURCES, TOPLEVEL, SIM; not an RTL spec); harness_library.py,
-    # .env, docker-compose.yml, shell scripts — all Docker-only, not useful to Codex.
+    # Write all .py files from the harness field so Codex can read the official
+    # spec and any helper libraries it imports. Exclude only Docker infrastructure:
+    # test_runner.py (reads Docker env vars — not an RTL spec), .sh, .yml, .env,
+    # Makefile. Non-test Python files like elevator_control.py or harness_library.py
+    # are valid spec/helper files that must be included.
     _HARNESS_EXCLUDE = {"test_runner.py"}
     for rel_path, content in problem.get("harness", {}).items():
         fname = os.path.basename(rel_path)
-        if not (fname.startswith("test_") and fname.endswith(".py")):
+        if not fname.endswith(".py"):
             continue
         if fname in _HARNESS_EXCLUDE:
             continue
@@ -169,9 +194,9 @@ def run_codex(workdir: Path, prompt: str, attempt: int) -> bool:
             log_file.write(f"=== Codex attempt {attempt} ===\nPrompt: {prompt}\n\n")
             log_file.flush()
             result = subprocess.run(
-                f'codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check "{prompt}"',
+                f'codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check -c reasoning_effort=high "{prompt}"',
                 cwd=workdir,
-                timeout=600,        # 10 minutes per codex call
+                timeout=1200,       # 20 minutes per codex call
                 shell=True,         # required on Windows for npm global binaries
                 stdin=subprocess.DEVNULL,  # prevent codex from waiting for Enter
                 stdout=log_file,
@@ -180,17 +205,52 @@ def run_codex(workdir: Path, prompt: str, attempt: int) -> bool:
         return result.returncode == 0
     except subprocess.TimeoutExpired:
         with open(log_path, "a", encoding="utf-8") as f:
-            f.write("\n[TIMED OUT after 10 min]\n")
-        # Warn the next attempt that RTL files may be truncated mid-write.
-        # Without this note, Codex would see a syntax error and try to "fix"
-        # what looks like a logic bug, not knowing the real cause was a kill.
+            f.write("\n[TIMED OUT after 20 min]\n")
         write_error_log(workdir, attempt,
-            "WARNING: This attempt timed out and was killed after 10 minutes. "
+            "WARNING: This attempt timed out and was killed after 20 minutes. "
             "RTL files in rtl/ may be truncated or incomplete due to the kill. "
             "Re-read prompt.txt and harness/src/ from scratch before making changes "
             "— do not try to patch what is currently in rtl/ without verifying it first.")
-        print("  [codex timed out after 10 min]")
+        print("  [codex timed out after 20 min]")
         return False
+
+
+# ── Spec self-review ───────────────────────────────────────────────────────────
+def run_codex_review(workdir: Path, attempt: int) -> tuple[bool, str]:
+    """
+    Run a verification-focused Codex call for unverified problems.
+    Codex reads harness/src/ + rtl/, fixes issues it finds, then writes
+    review.txt ending with 'REVIEW VERDICT: PASS' or 'REVIEW VERDICT: FAIL'.
+    Returns (passed: bool, review_text: str).
+    """
+    log_path    = workdir / f"review_attempt_{attempt}.log"
+    review_path = workdir / "review.txt"
+    review_path.unlink(missing_ok=True)
+
+    try:
+        with open(log_path, "w", encoding="utf-8", errors="replace") as log_file:
+            log_file.write(f"=== Review attempt {attempt} ===\n\n")
+            log_file.flush()
+            subprocess.run(
+                f'codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check -c reasoning_effort=high "{REVIEW_PROMPT}"',
+                cwd=workdir,
+                timeout=1200,
+                shell=True,
+                stdin=subprocess.DEVNULL,
+                stdout=log_file,
+                stderr=log_file,
+            )
+    except subprocess.TimeoutExpired:
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write("\n[TIMED OUT after 20 min]\n")
+        return False, "Review call timed out — treating as unresolved."
+
+    if not review_path.exists():
+        return False, "Codex did not write review.txt — treating as unresolved."
+
+    review_text = review_path.read_text(encoding="utf-8", errors="replace")
+    passed = "REVIEW VERDICT: PASS" in review_text
+    return passed, review_text
 
 
 # ── Testbench check ────────────────────────────────────────────────────────────
@@ -299,13 +359,29 @@ def solve_problem(problem: dict, mode: str) -> dict:
     if not has_tb:
         print(f"  Testbench  : NONE (placeholder only — result will be unverified)")
 
-    max_iters = 1 if mode == "one-shot" else MAX_ATTEMPTS
-    passed    = False
-    status    = "fail"
-    output    = ""
-    attempt   = 0
+    max_iters   = 1 if mode == "one-shot" else MAX_ATTEMPTS
+    passed      = False
+    status      = "fail"
+    output      = ""
+    attempt     = 0
+    needs_review = False   # set True after unverified compile-pass to trigger review next iteration
+    harness_src  = workdir / "harness" / "src"
 
     for attempt in range(1, max_iters + 1):
+        # ── Self-review branch (unverified problems only) ──────────────────────
+        if needs_review and harness_src.exists():
+            needs_review = False
+            print(f"\n  [Attempt {attempt}/{max_iters}] Running spec self-review ...", flush=True)
+            review_passed, review_text = run_codex_review(workdir, attempt)
+            if review_passed:
+                status = "unverified"
+                print(f"  Result     : UNVERIFIED ⚠  (RTL compiles, self-review passed — attempt {attempt})")
+                break
+            else:
+                print(f"  Result     : REVIEW FAIL ✗  (spec issues found — attempt {attempt})")
+                write_error_log(workdir, attempt, review_text)
+            continue
+
         prompt = PROMPTS[attempt]
         print(f"\n  [Attempt {attempt}/{max_iters}] Running codex ...", flush=True)
 
@@ -328,13 +404,26 @@ def solve_problem(problem: dict, mode: str) -> dict:
         output = compile_out + sim_out
 
         if not has_tb:
-            # No real testbench — check only that RTL compiles; simulation result is meaningless
-            compiled = (compile_out == "" or "error:" not in compile_out.lower())
-            log_iverilog(workdir, attempt, compile_out, sim_out, compiled)
-            if compiled:
-                status = "unverified"
-                print(f"  Result     : UNVERIFIED ⚠  (RTL compiles, no testbench — attempt {attempt})")
-                break
+            # No real testbench — check only that RTL compiles; simulation result is normally
+            # meaningless. Exception: a timeout means the RTL itself has an infinite loop or
+            # deadlock — that is a definitive failure worth feeding back to Codex.
+            compiled  = (compile_out == "" or "error:" not in compile_out.lower())
+            timed_out = (sim_out == "Simulation timed out")
+            log_iverilog(workdir, attempt, compile_out, sim_out, compiled and not timed_out)
+            if timed_out:
+                print(f"  Result     : TIMEOUT ✗  (RTL compiles but simulation hangs — attempt {attempt})")
+                write_error_log(workdir, attempt,
+                    "Simulation timed out after 60 seconds. The RTL likely contains an infinite "
+                    "loop, a missing $finish, or a deadlock. Inspect all always blocks and loops "
+                    "for conditions that never terminate.")
+            elif compiled:
+                if harness_src.exists() and attempt < max_iters:
+                    needs_review = True
+                    print(f"  Result     : COMPILES ✓  (queuing spec self-review — attempt {attempt})")
+                else:
+                    status = "unverified"
+                    print(f"  Result     : UNVERIFIED ⚠  (RTL compiles, no testbench — attempt {attempt})")
+                    break
             else:
                 print(f"  Result     : COMPILE FAIL ✗  (attempt {attempt})")
                 snippet = compile_out.strip()[:200]

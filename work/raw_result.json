@@ -7,8 +7,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_starlight_phoenix_comet/reports/6246.txt",
         "error_msg": null,
-        "execution": 21.965298891067505,
-        "pid": 34401
+        "execution": 22.00673818588257,
+        "pid": 4547
       }
     ],
     "errors": 0
@@ -21,8 +21,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_glacier_amber_cosmic/reports/3144.txt",
         "error_msg": null,
-        "execution": 77.16778421401978,
-        "pid": 34494
+        "execution": 73.89696002006531,
+        "pid": 4641
       }
     ],
     "errors": 0
@@ -35,8 +35,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_diamond_dolphin_whisper/reports/4792.txt",
         "error_msg": null,
-        "execution": 34.009525537490845,
-        "pid": 34587
+        "execution": 33.644500494003296,
+        "pid": 4751
       }
     ],
     "errors": 0
@@ -49,8 +49,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_amber_prism_tiger/reports/1687.txt",
         "error_msg": null,
-        "execution": 166.38378739356995,
-        "pid": 34686
+        "execution": 164.18454957008362,
+        "pid": 4846
       }
     ],
     "errors": 0
@@ -63,22 +63,22 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_eagle_jade_forest/reports/681_test_decrypt.txt",
         "error_msg": null,
-        "execution": 62.80901765823364,
-        "pid": 34783
+        "execution": 59.84422159194946,
+        "pid": 4941
       },
       {
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_eagle_jade_forest/reports/681_test_encrypt.txt",
         "error_msg": null,
-        "execution": 49.15978384017944,
-        "pid": 34878
+        "execution": 48.351420879364014,
+        "pid": 5035
       },
       {
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_eagle_jade_forest/reports/681_test_padding.txt",
         "error_msg": null,
-        "execution": 46.800145626068115,
-        "pid": 34970
+        "execution": 42.785006284713745,
+        "pid": 5129
       }
     ],
     "errors": 0
@@ -88,14 +88,14 @@
     "difficulty": "hard",
     "tests": [
       {
-        "result": 1,
+        "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_ivory_cloud_ocean/reports/3516.txt",
         "error_msg": null,
-        "execution": 2.17707896232605,
-        "pid": 35066
+        "execution": 47.09448742866516,
+        "pid": 5225
       }
     ],
-    "errors": 1
+    "errors": 0
   },
   "cvdp_agentic_meadow_river_prism_8091": {
     "category": "cid004",
@@ -105,8 +105,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_meadow_river_prism/reports/8091.txt",
         "error_msg": null,
-        "execution": 8.10159158706665,
-        "pid": 35161
+        "execution": 7.7581562995910645,
+        "pid": 5319
       }
     ],
     "errors": 0
@@ -119,8 +119,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_meadow_marble_castle/reports/301.txt",
         "error_msg": null,
-        "execution": 18.998297691345215,
-        "pid": 35253
+        "execution": 18.242275714874268,
+        "pid": 5414
       }
     ],
     "errors": 0
@@ -133,25 +133,25 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_azure_sapphire_tiger/reports/4476_des_dec.txt",
         "error_msg": null,
-        "execution": 19.144914388656616,
-        "pid": 35348
+        "execution": 18.344086408615112,
+        "pid": 5510
       },
       {
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_azure_sapphire_tiger/reports/4476_des_enc.txt",
         "error_msg": null,
-        "execution": 19.039301872253418,
-        "pid": 35444
+        "execution": 18.043800354003906,
+        "pid": 5608
       },
       {
-        "result": 1,
+        "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_azure_sapphire_tiger/reports/4476_sanity.txt",
         "error_msg": null,
-        "execution": 3.0295803546905518,
-        "pid": 35538
+        "execution": 13.124447584152222,
+        "pid": 5704
       }
     ],
-    "errors": 1
+    "errors": 0
   },
   "cvdp_agentic_eagle_crystal_lunar_2638": {
     "category": "cid003",
@@ -161,8 +161,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_eagle_crystal_lunar/reports/2638.txt",
         "error_msg": null,
-        "execution": 1.9762241840362549,
-        "pid": 35633
+        "execution": 1.7854366302490234,
+        "pid": 5800
       }
     ],
     "errors": 0
@@ -175,8 +175,8 @@
         "result": 1,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_sunrise_ivory_glacier/reports/9089.txt",
         "error_msg": null,
-        "execution": 5.539328575134277,
-        "pid": 35731
+        "execution": 5.145601987838745,
+        "pid": 17395
       }
     ],
     "errors": 1
@@ -189,8 +189,8 @@
         "result": 1,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_breeze_velvet_violet/reports/7060.txt",
         "error_msg": null,
-        "execution": 4.080198764801025,
-        "pid": 35826
+        "execution": 6.802744626998901,
+        "pid": 16872
       }
     ],
     "errors": 1
@@ -200,14 +200,14 @@
     "difficulty": "easy",
     "tests": [
       {
-        "result": 1,
+        "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_forest_fountain_river/reports/702.txt",
         "error_msg": null,
-        "execution": 8.160395383834839,
-        "pid": 39831
+        "execution": 7.553858280181885,
+        "pid": 6087
       }
     ],
-    "errors": 1
+    "errors": 0
   },
   "cvdp_agentic_crimson_river_butterfly_1181": {
     "category": "cid016",
@@ -217,8 +217,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_crimson_river_butterfly/reports/1181.txt",
         "error_msg": null,
-        "execution": 2.125112771987915,
-        "pid": 36055
+        "execution": 1.8347256183624268,
+        "pid": 6229
       }
     ],
     "errors": 0
@@ -231,8 +231,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_nebula_nova_castle/reports/8184.txt",
         "error_msg": null,
-        "execution": 9.152931451797485,
-        "pid": 36148
+        "execution": 8.456329822540283,
+        "pid": 6325
       }
     ],
     "errors": 0
@@ -242,14 +242,14 @@
     "difficulty": "medium",
     "tests": [
       {
-        "result": 1,
+        "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_ember_meadow_sunrise/reports/1765.txt",
         "error_msg": null,
-        "execution": 3.480257749557495,
-        "pid": 36238
+        "execution": 3.4782779216766357,
+        "pid": 12915
       }
     ],
-    "errors": 1
+    "errors": 0
   },
   "cvdp_agentic_garden_sapphire_amber_0307": {
     "category": "cid004",
@@ -259,8 +259,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_garden_sapphire_amber/reports/307.txt",
         "error_msg": null,
-        "execution": 2.0773508548736572,
-        "pid": 36335
+        "execution": 1.883040428161621,
+        "pid": 6512
       }
     ],
     "errors": 0
@@ -273,15 +273,15 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_summit_horizon_diamond/reports/3314_sanity.txt",
         "error_msg": null,
-        "execution": 60.69349527359009,
-        "pid": 36433
+        "execution": 59.64362978935242,
+        "pid": 6608
       },
       {
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_summit_horizon_diamond/reports/3314_storage_sanity.txt",
         "error_msg": null,
-        "execution": 3.9813497066497803,
-        "pid": 36527
+        "execution": 3.4884824752807617,
+        "pid": 6702
       }
     ],
     "errors": 0
@@ -294,8 +294,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_horizon_whisper_panther/reports/1434.txt",
         "error_msg": null,
-        "execution": 42.56950569152832,
-        "pid": 36620
+        "execution": 42.31605792045593,
+        "pid": 6798
       }
     ],
     "errors": 0
@@ -308,8 +308,8 @@
         "result": 1,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_lagoon_dragon_diamond/reports/4339.txt",
         "error_msg": null,
-        "execution": 29.171977758407593,
-        "pid": 36714
+        "execution": 26.46373677253723,
+        "pid": 17212
       }
     ],
     "errors": 1
@@ -322,8 +322,8 @@
         "result": 1,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_thunder_diamond_horizon/reports/119.txt",
         "error_msg": null,
-        "execution": 56.669665575027466,
-        "pid": 36809
+        "execution": 55.857335805892944,
+        "pid": 13184
       }
     ],
     "errors": 1
@@ -336,8 +336,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_comet_cloud_tiger/reports/9313.txt",
         "error_msg": null,
-        "execution": 3.334632158279419,
-        "pid": 36915
+        "execution": 1.8849797248840332,
+        "pid": 7081
       }
     ],
     "errors": 0
@@ -347,14 +347,14 @@
     "difficulty": "hard",
     "tests": [
       {
-        "result": 1,
+        "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_falcon_willow_dragon/reports/8753.txt",
         "error_msg": null,
-        "execution": 3.2844769954681396,
-        "pid": 37012
+        "execution": 1.9326624870300293,
+        "pid": 7173
       }
     ],
-    "errors": 1
+    "errors": 0
   },
   "cvdp_agentic_thunder_compass_river_8383": {
     "category": "cid005",
@@ -364,8 +364,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_thunder_compass_river/reports/8383.txt",
         "error_msg": null,
-        "execution": 3.133634090423584,
-        "pid": 37106
+        "execution": 2.233511447906494,
+        "pid": 7269
       }
     ],
     "errors": 0
@@ -378,8 +378,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_meadow_canyon_sunrise/reports/439.txt",
         "error_msg": null,
-        "execution": 5.247190952301025,
-        "pid": 40416
+        "execution": 4.7419822216033936,
+        "pid": 7364
       }
     ],
     "errors": 0
@@ -392,8 +392,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_breeze_crystal_zenith/reports/1259.txt",
         "error_msg": null,
-        "execution": 2.7770869731903076,
-        "pid": 37337
+        "execution": 2.035019874572754,
+        "pid": 7499
       }
     ],
     "errors": 0
@@ -406,8 +406,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_amber_eagle_lambda/reports/1.txt",
         "error_msg": null,
-        "execution": 3.0827388763427734,
-        "pid": 37431
+        "execution": 2.183302640914917,
+        "pid": 7595
       }
     ],
     "errors": 0
@@ -420,8 +420,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_echo_obsidian_lunar/reports/1.txt",
         "error_msg": null,
-        "execution": 5.2953455448150635,
-        "pid": 40123
+        "execution": 4.54095721244812,
+        "pid": 7689
       }
     ],
     "errors": 0
@@ -434,8 +434,8 @@
         "result": 1,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_compass_breeze_obsidian/reports/16.txt",
         "error_msg": null,
-        "execution": 4.433917760848999,
-        "pid": 37666
+        "execution": 5.6973607540130615,
+        "pid": 17039
       }
     ],
     "errors": 1
@@ -448,8 +448,8 @@
         "result": 0,
         "log": "/mnt/e/cvdp/NVIDIA-cvdp-agent/work/cvdp_agentic_diamond_orbit_valley/reports/1.txt",
         "error_msg": null,
-        "execution": 3.0876946449279785,
-        "pid": 37762
+        "execution": 1.8336353302001953,
+        "pid": 7932
       }
     ],
     "errors": 0

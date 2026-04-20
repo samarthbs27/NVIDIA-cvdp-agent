@@ -1,29 +1,5 @@
 [
   {
-    "id": "cvdp_agentic_ivory_cloud_ocean_3516",
-    "categories": [
-      "cid003",
-      "hard"
-    ],
-    "mode": "retry",
-    "status": "pass",
-    "passed": true,
-    "attempts": 1,
-    "output": "work/cvdp_agentic_ivory_cloud_ocean_3516/verif/tb_des_enc.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
-  },
-  {
-    "id": "cvdp_agentic_azure_sapphire_tiger_4476",
-    "categories": [
-      "cid005",
-      "medium"
-    ],
-    "mode": "retry",
-    "status": "pass",
-    "passed": true,
-    "attempts": 1,
-    "output": "work/cvdp_agentic_azure_sapphire_tiger_4476/verif/tb_3des_dec.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
-  },
-  {
     "id": "cvdp_agentic_sunrise_ivory_glacier_9089",
     "categories": [
       "cid004",
@@ -32,7 +8,7 @@
     "mode": "retry",
     "status": "unverified",
     "passed": false,
-    "attempts": 1,
+    "attempts": 2,
     "output": ""
   },
   {
@@ -44,31 +20,7 @@
     "mode": "retry",
     "status": "unverified",
     "passed": false,
-    "attempts": 1,
-    "output": ""
-  },
-  {
-    "id": "cvdp_agentic_forest_fountain_river_0702",
-    "categories": [
-      "cid004",
-      "easy"
-    ],
-    "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 1,
-    "output": ""
-  },
-  {
-    "id": "cvdp_agentic_ember_meadow_sunrise_1765",
-    "categories": [
-      "cid004",
-      "medium"
-    ],
-    "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 1,
+    "attempts": 2,
     "output": ""
   },
   {
@@ -80,32 +32,8 @@
     "mode": "retry",
     "status": "unverified",
     "passed": false,
-    "attempts": 1,
-    "output": "work/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:40: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:40: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:40: sorry: constant selects in always_* processes are not currently supported (all bits will be incl"
-  },
-  {
-    "id": "cvdp_agentic_thunder_diamond_horizon_0119",
-    "categories": [
-      "cid005",
-      "medium"
-    ],
-    "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 1,
-    "output": ""
-  },
-  {
-    "id": "cvdp_agentic_falcon_willow_dragon_8753",
-    "categories": [
-      "cid004",
-      "hard"
-    ],
-    "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 1,
-    "output": ""
+    "attempts": 2,
+    "output": "work/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:42: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:42: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:42: sorry: constant selects in always_* processes are not currently supported (all bits will be incl"
   },
   {
     "id": "cvdp_agentic_compass_breeze_obsidian_0016",
@@ -116,7 +44,7 @@
     "mode": "retry",
     "status": "unverified",
     "passed": false,
-    "attempts": 1,
+    "attempts": 2,
     "output": ""
   }
 ]

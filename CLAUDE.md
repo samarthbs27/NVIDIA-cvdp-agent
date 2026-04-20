@@ -144,6 +144,64 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 ## Session Log
 
+### Session 13 — 2026-04-20
+
+**Topic:** AGENTS.md v3 (8 rules); self-review mechanism for unverified problems; harness allowlist expanded to all .py; argparse -i batch fix; ember_meadow_sunrise PASS; improved to 25/30
+
+**Key discoveries:**
+
+1. **Harness allowlist bug — non-`test_` prefixed spec files were silently skipped.** `setup_workdir()` previously used `test_*.py` as the allowlist for JSONL harness files. `elevator_control.py` (spec for ember_meadow_sunrise) and `harness_library.py` (helper imported by BST tests) were dropped silently because they don't start with `test_`. Fix: allowlist changed to all `.py` files (excluding only `test_runner.py`). This was the sole reason `ember_meadow_sunrise` kept failing — Codex never saw the spec.
+
+2. **`ember_meadow_sunrise` flipped FAIL → PASS (25/30)** after the allowlist fix. With `elevator_control.py` visible, Codex generated `assign up_led = (system_status == MOVING_UP)` correctly on the first attempt.
+
+3. **argparse `-i` bug fixed.** `type=str` with no `action='append'` means multiple `-i cvdp_agentic_... -i cvdp_agentic_...` flags silently keep only the last value. All batch Phase B runs before this fix were only grading the last problem and returning cached results for the rest. Fix: `action="append"` added in `argparse_common.py`; `run_benchmark.py` now loops over all IDs in `args.id`.
+
+4. **Self-review mechanism implemented for unverified problems.** When a placeholder-testbench problem compiles successfully and `harness/src/` exists, instead of immediately marking as `"unverified"`, the agent queues a second Codex call (`run_codex_review()`) using `REVIEW_PROMPT`. This call reads the harness spec + RTL, traces every assertion, fixes any discrepancies, then writes `review.txt` ending with `REVIEW VERDICT: PASS` or `REVIEW VERDICT: FAIL`. A FAIL verdict writes the review analysis to `error_log.txt` and continues the retry loop. This gives unverified problems up to N-1 fix iterations plus a final spec-verification pass before accepting.
+
+5. **AGENTS.md v3 — three new RTL design rules derived from remaining 6 failure analyses:**
+   - **Rule 6 (parameterized boundary cases):** mentally test when parameters equal each other, are at min/max; array index from Parameter A into array of size B overflows when A == B
+   - **Rule 7 (state preservation on no-match input):** "output unchanged" on invalid/missing input requires explicit pass-through RTL — not default sentinel assignments that overwrite previous values
+   - **Rule 8 (FSM output duration):** ask whether each output should hold for the entire state or only the transition cycle; status outputs stuck at 0 are almost always driven from transition guards instead of current state (Rule 8 written as a diagnostic question, not a directive, to avoid regressions in FSMs where transition-only drive is correct)
+
+6. **Codex timeout corrected to 20 minutes.** Log messages previously said "10 min" but the actual timeout constant was 1200 seconds (20 min). Corrected in both the log file write and print statement.
+
+7. **Zero-padded ID reference clarified.** The JSONL uses zero-padded issue numbers (`_0016`, `_0028`, `_9089`, `_4339`). Harness report files strip leading zeros (`int(id.split("_")[-1])`), so report files are `16.txt`, `28.txt`, not `0016.txt`. The `--ids` flag for `agent.py` requires the full zero-padded JSONL id.
+
+**Files changed this session:**
+- `agent.py` — timeout log messages corrected to 20 min; `REVIEW_PROMPT` constant added; `run_codex_review()` function added; `solve_problem()` — `needs_review` flag + review branch at top of attempt loop; `elif compiled:` branch now queues review instead of breaking immediately; `setup_workdir()` — allowlist expanded from `test_*.py` to all `.py` (excluding `test_runner.py`)
+- `AGENTS.md` — Rules 6, 7, 8 added; all 8 rules confirmed general (not directed at specific known failures)
+- `src/argparse_common.py` — `-i/--id` changed to `action="append", dest="id"`
+- `run_benchmark.py` — loop over all IDs in `args.id`; `raw_result.json` read and full report printed after all IDs processed
+- `README.md` — Phase A architecture updated with self-review step; harness allowlist description corrected; results table expanded with allowlist-fix column; key findings updated
+- `CLAUDE.md` — Session 13 added
+
+**Phase B results (after allowlist fix, ember_meadow_sunrise re-run):**
+- Overall: **25/30 (83.3%)** problems passed, **30/35 (85.7%)** tests passed
+- By difficulty: Easy 1/1 (100%), Medium 15/18 (83.3%), Hard 9/11 (81.8%)
+- By category: cid016 3/3 (100%), cid003 5/5 (100%), cid004 10/13 (76.9%), cid005 7/9 (77.8%)
+- New win: `ember_meadow_sunrise` (cid005, medium) — `elevator_control.py` spec file now correctly included
+
+**Remaining 5 failures (after allowlist fix):**
+- `breeze_velvet_violet` — BST delete-smallest: `out_keys` goes high-Z when ARRAY_SIZE=6
+- `compass_breeze_obsidian` — order matching latency 22 vs required 21 cycles
+- `lagoon_dragon_diamond` — `o_proc_detected` always 0; simulation hangs (60-second timeout)
+- `sunrise_ivory_glacier` — BST delete: off-by-1 for smallest key, tree corruption on key-not-found
+- `thunder_diamond_horizon` — PRBS polynomial wrong; all 73 parameter combinations fail sequential test
+
+**Self-review mechanism validated — but Codex hallucinates simulation results.** Phase A ran all 4 problems with the self-review active. All 4 compiled on attempt 1, queued self-review on attempt 2, and Codex wrote `REVIEW VERDICT: PASS` in `review.txt` for all 4. Phase B was then run — all 4 still returned `result: 1` (FAIL), same bugs as before. Reading `review.txt` revealed the root cause:
+- **sunrise_ivory_glacier**: Codex claimed "directed simulation confirmed smallest-key delete completes in 6 cycles" — Phase B measured 7 cycles. Fabricated simulation result.
+- **breeze_velvet_violet**: Codex claimed "no out-of-range packed-bus indexing or tri-state assignments were found" — Phase B got `ValueError: Cannot convert Logic('Z') to int` on the `[6-6]` boundary case. Missed the high-Z.
+
+**Conclusion:** The self-review mechanism works mechanically (fires correctly, writes review.txt, feeds FAIL back to error_log) but is not reliable for the bugs in these 4 problems. LLM static RTL analysis hallucinates simulation results for latency off-by-one and boundary-case high-Z bugs. Only actual cocotb simulation (Phase B) catches them.
+
+**Status at end of session:** Final best result: **25/30 (83.3%)**. The 5 remaining failures are confirmed as beyond what Codex self-review can reliably fix without real simulation feedback. The architecture's fundamental limitation: Phase A can only verify RTL with a real local testbench; for the 15 placeholder-testbench problems, Phase B is the only reliable oracle.
+
+**Next steps:**
+- Commit all session changes
+- Document self-review limitation in README and final report
+
+---
+
 ### Session 12 — 2026-04-16
 
 **Topic:** Full diagnosis of all 10 failing problems; AGENTS.md RTL design rules; `--ids` flag; Phase A vs Phase B workdir structure
@@ -369,7 +427,7 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 1. **End-to-end flow verified again (clean run).** Phase A ran `agent.py --id cvdp_agentic_starlight_phoenix_comet_6246 --mode one-shot` on Windows — Codex passed on attempt 1, local iverilog PASS. Phase B ran `run_benchmark.py` in WSL — official harness PASS (`result: 0, errors: 0`). Full pipeline confirmed working from a clean state.
 
-2. **WSL python/pyenv-win shim issue.** Without the venv active, `python` in WSL resolves to the Windows pyenv shim (`C:\Users\samar\.pyenv\pyenv-win\shims\python`), which has `\r\n` line endings and fails with `/bin/sh^M: bad interpreter`. Fix: always `source venv/bin/activate` before running anything in WSL, or use `python3` explicitly.
+2. **WSL python/pyenv-win shim issue.** Without the venv active, `python` in WSL resolves to the Windows pyenv shim (`C:\Users\<username>\.pyenv\pyenv-win\shims\python`), which has `\r\n` line endings and fails with `/bin/sh^M: bad interpreter`. Fix: always `source venv/bin/activate` before running anything in WSL, or use `python3` explicitly.
 
 3. **`licnetwork` not needed for our flow.** Session 6 CLAUDE.md noted it must be created manually. Confirmed today that the harness auto-creates and destroys its own Docker network per run. `licnetwork` is only required for commercial EDA tools — irrelevant for our open-source flow.
 
@@ -462,7 +520,7 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 **Next steps:**
 - Run retry mode on all 30 problems (especially `ivory_cloud_ocean` which was recoverable)
-- Push changes to GitHub (nvidia-cvdp-agent repo, samarthbs27)
+- Push changes to GitHub
 - Investigate dynamic prompts per category
 
 ---
@@ -714,6 +772,11 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 | `--ids` flag for targeted multi-problem re-runs | `--id` only accepts one problem; after diagnosing all 10 failures we needed to re-run a specific subset without running all 30; `--ids id1 id2 ...` collects all non-`--` args after the flag | Session 12 |
 | AGENTS.md Step 2: explicit pre-RTL extraction checklist | Diagnosis showed latency off-by-one is the most common failure class — Codex reads the harness spec but doesn't specifically search for `assert latency == N`; explicit checklist (signals, exact values, cycle counts) forces this before any RTL is touched | Session 12 |
 | AGENTS.md RTL Design Rules (5 rules) | Rules derived directly from failure patterns across all 10 failing problems: (1) count pipeline stages for latency, (2) default assignments prevent high-Z, (3) trace accumulation enables for stuck-at-0 outputs, (4) check every asserted output not just primary data, (5) algorithms must match spec exactly (PRBS, encryption) | Session 12 |
+| Harness allowlist expanded to all `.py` | Original `test_*.py` allowlist silently skipped `elevator_control.py` (spec for ember_meadow_sunrise) and `harness_library.py` (BST helper); any non-`test_`-prefixed Python spec file would be invisible to Codex — one line fix, one new PASS | Session 13 |
+| Self-review mechanism for unverified problems | After RTL compiles for a placeholder-testbench problem with `harness/src/` present, a dedicated `run_codex_review()` call reads spec + RTL, traces every assertion, fixes discrepancies, and writes `REVIEW VERDICT: PASS/FAIL`; FAIL feeds back into retry loop — gives unverified problems iterative correction without a real local testbench | Session 13 |
+| AGENTS.md v3 (8 rules) — 3 new rules | Rules 6-8 derived from remaining 6 failure analysis: parameterized boundary overflow, state preservation on no-match, FSM output duration (written as diagnostic to avoid regressions) — all rules kept general for the full NVIDIA JSONL dataset | Session 13 |
+| argparse `-i` with `action="append"` | `type=str` without `action='append'` silently drops all but the last `-i` flag; all batch Phase B runs before this fix only graded the last problem — cached results masked the bug | Session 13 |
+| `run_benchmark.py` loops over all IDs | With argparse fix, `args.id` is now a list; the old single `execute_single()` call replaced with a loop; full report read from `raw_result.json` after all IDs complete | Session 13 |
 
 ---
 
@@ -721,8 +784,9 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 - Should prompts be dynamic per category (cid003/cid004/cid005/cid016)? Decision: not pursuing — NVIDIA does not document the distinction between cid003/004/005 and all three use identical evaluation.
 - Why do retry regressions occur? `falcon_willow_dragon` and `azure_sapphire_tiger` passed in one-shot but failed in retry — retry mode overwrote working RTL with worse RTL across 6 attempts. After AGENTS.md v2 re-run, both now PASS. Resolved for these two; general risk remains for future regressions.
-- **6 remaining failures (as of Session 12 re-run, 24/30):** `breeze_velvet_violet` (high-Z BST delete), `compass_breeze_obsidian` (latency 22 vs 21), `ember_meadow_sunrise` (up_led stuck at 0), `lagoon_dragon_diamond` (o_proc_detected always 0; sim hangs), `sunrise_ivory_glacier` (BST delete corruption), `thunder_diamond_horizon` (PRBS polynomial wrong). These are hard RTL bugs that AGENTS.md v2 did not resolve.
-- **3 agent.py improvements pending:** (1) add `--reasoning-effort high` to the codex exec command, (2) for unverified problems: don't break retry loop after compile success — allow all MAX_ATTEMPTS, (3) for unverified problems + simulation timeout: treat as FAIL, write to error_log.txt, continue retrying (currently timeout is silently ignored).
+- **5 remaining failures (as of Session 13, 25/30):** `breeze_velvet_violet` (high-Z BST delete, ARRAY_SIZE=6), `compass_breeze_obsidian` (latency 22 vs 21), `lagoon_dragon_diamond` (o_proc_detected always 0; sim hangs in phase A), `sunrise_ivory_glacier` (BST delete off-by-1 + key-not-found corruption), `thunder_diamond_horizon` (PRBS polynomial wrong — confirmed genuine; all 73 parameter combinations fail). Phase A re-run with self-review active for first 4; `thunder_diamond_horizon` skipped (polynomial mismatch requires exact spec knowledge Codex cannot infer from generic prompts).
+- **Self-review is mechanically correct but LLM static RTL analysis is unreliable:** Codex hallucinates simulation results — it claims "directed simulation confirmed latency = 6 cycles" or "no high-Z assignments found" while Phase B contradicts both. For latency off-by-one and boundary-case high-Z bugs, only actual cocotb simulation is a reliable oracle. The self-review adds one extra fix iteration but cannot substitute for real simulation.
+- **`thunder_diamond_horizon` unfixable by prompt engineering:** PRBS polynomial taps are exact bit patterns that must match hardware spec precisely. Codex cannot infer them from harness assertion patterns alone — confirmed across multiple retry runs with all 8 RTL design rules active.
 
 ---
 

@@ -29,8 +29,8 @@ def add_common_arguments(parser: argparse.ArgumentParser) -> None:
                        help="Identify one file to run the harness evaluation.")
     parser.add_argument("-a", "--answers", type=str,
                        help="Identify one file to have answers of the prompts.")
-    parser.add_argument("-i", "--id", type=str,
-                       help="Identify one ID to run the harness evaluation for a single issue.")
+    parser.add_argument("-i", "--id", type=str, action="append", dest="id",
+                       help="ID(s) to run harness evaluation for. Repeat -i to specify multiple.")
     
     # Model and execution arguments
     parser.add_argument("-l", "--llm", action=argparse.BooleanOptionalAction,

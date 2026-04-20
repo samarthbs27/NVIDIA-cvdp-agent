@@ -1,5 +1,13 @@
-# Runtime output
-work/
+# Harness outputs copied to repo root (canonical versions live in work/)
+raw_result.json
+report.txt
+
+# Work directory — include results and reports only; exclude RTL, logs, Docker artifacts
+work/*
+!work/*.json
+!work/*.txt
+work/cvdp_agentic_*/
+
 *.vcd
 
 # Python

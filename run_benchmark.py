@@ -437,62 +437,38 @@ if __name__ == "__main__":
             with open(raw_result_path, 'r') as f:
                 res = json.load(f)
         else:
-            # Check if single issue mode is requested
+            # Check if single/multi issue mode is requested
             if args.id:
-                # Single issue execution (both Benchmark and AgenticBenchmark have execute_single)
-                exec_result = obj.execute_single(args.id, runs_file=args.answers)
-                
-                # Add execution information for single issue
-                if isinstance(exec_result, dict):
-                    model_agent_value = None
-                    if args.llm:
-                        if agentic and args.agent is not None:
-                            model_agent_value = args.agent
-                        else:
-                            model_agent_value = args.model if args.model is not None else config.get("DEFAULT_MODEL")
-                    
-                    # Add metadata if not present
-                    if 'metadata' not in exec_result:
-                        exec_result['metadata'] = {}
-                    
-                    # Update metadata with current run info
-                    exec_result['metadata'].update({
-                        'golden_mode': (not args.llm),
-                        'disable_patch': args.no_patch,
-                        'model_agent': model_agent_value,
-                        'force_agentic': args.force_agentic,
-                        'force_agentic_include_golden': args.force_agentic_include_golden,
-                        'force_agentic_include_harness': args.force_agentic_include_harness,
-                        'force_copilot': args.force_copilot,
-                        'copilot_refine': args.copilot_refine
-                    })
-                    
-                    # Read the entire raw_result.json to generate a complete report
-                    raw_result_path = os.path.join(args.prefix, "raw_result.json")
-                    with open(raw_result_path, 'r') as f:
-                        all_results = json.load(f)
-                    
-                    # Create a report using all available results
-                    rpt = report.Report(all_results, prefix=args.prefix, dataset_path=filename, 
-                                      golden_mode=(not args.llm), 
-                                      disable_patch=args.no_patch,
-                                      model_agent=model_agent_value,
-                                      force_agentic=args.force_agentic,
-                                      force_agentic_include_golden=args.force_agentic_include_golden,
-                                      force_agentic_include_harness=args.force_agentic_include_harness,
-                                      force_copilot=args.force_copilot,
-                                      copilot_refine=args.copilot_refine)
-                    rpt.report_header()
-                    rpt.report_categories()
-                    rpt.report_timers()
-                    
-                    # Check for agent logfile
-                    if 'agent_logfile' in exec_result:
-                        print(f"Agent logfile: {exec_result['agent_logfile']}")
-                    if 'agent_patch_file' in exec_result:
-                        print(f"Agent patch file: {exec_result['agent_patch_file']}")
-                
-                print(json.dumps(exec_result, indent=2))
+                model_agent_value = None
+                if args.llm:
+                    if agentic and args.agent is not None:
+                        model_agent_value = args.agent
+                    else:
+                        model_agent_value = args.model if args.model is not None else config.get("DEFAULT_MODEL")
+
+                last_exec_result = None
+                for issue_id in args.id:
+                    exec_result = obj.execute_single(issue_id, runs_file=args.answers)
+                    last_exec_result = exec_result
+                    print(json.dumps(exec_result, indent=2))
+
+                # Generate report from all accumulated results in raw_result.json
+                raw_result_path = os.path.join(args.prefix, "raw_result.json")
+                with open(raw_result_path, 'r') as f:
+                    all_results = json.load(f)
+
+                rpt = report.Report(all_results, prefix=args.prefix, dataset_path=filename,
+                                  golden_mode=(not args.llm),
+                                  disable_patch=args.no_patch,
+                                  model_agent=model_agent_value,
+                                  force_agentic=args.force_agentic,
+                                  force_agentic_include_golden=args.force_agentic_include_golden,
+                                  force_agentic_include_harness=args.force_agentic_include_harness,
+                                  force_copilot=args.force_copilot,
+                                  copilot_refine=args.copilot_refine)
+                rpt.report_header()
+                rpt.report_categories()
+                rpt.report_timers()
                 
             else:
                 # Full benchmark mode (original functionality)
