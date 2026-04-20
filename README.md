@@ -3,7 +3,7 @@
 A Codex CLI wrapper agent for the [NVIDIA ICLAD25 Hackathon](https://github.com/ICLAD-Hackathon/NVIDIA-ICLAD25-Hackathon) — **CVDP (Circuit Verification and Design Problems)** track.
 
 Built for **ASU VLSI Design Automation (Mini Project 2)** under Prof. Chhabria.
-**Team:** Samarth, Bangalore Sudharshan, Rijul, Rajendra Wankhade
+**Team:** Samarth Bangalore Sudharshan, Rijul Rajendra Wankhade
 
 ---
 
