@@ -3,6 +3,9 @@ raw_result.json
 report.txt
 results_*.json
 
+# Presentation and scratch files
+presentation_qa.txt
+
 # Work directory — include results and reports only; exclude RTL, logs, Docker artifacts
 work/*
 !work/*.json

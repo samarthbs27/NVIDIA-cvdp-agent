@@ -144,6 +144,44 @@ Future improvement: dynamic prompts per category (NVIDIA does not document the d
 
 ## Session Log
 
+### Session 14 — 2026-04-22
+
+**Topic:** Repo cleanup (docker/, results/, gitignore whitelist); HuggingFace full dataset discovery
+
+**Key discoveries:**
+
+1. **Repo restructured — Docker files and results JSON moved to subfolders.**
+   - `relay_agent.py` + `Dockerfile-agent` → `docker/` (Dockerfile `COPY` path unchanged since both files move together)
+   - `results_one-shot.json` + `results_retry.json` → `results/`
+   - `agent.py` output path updated: `results/results_{mode}.json`; `results_file.parent.mkdir(exist_ok=True)` ensures folder is created on first run
+   - README docker build command updated: `docker build -t cvdp-relay-agent:latest -f docker/Dockerfile-agent docker/`
+
+2. **gitignore whitelist for `work/` — tracks only aggregate result files.**
+   - `work/*` excludes all direct children; `!work/*.json` and `!work/*.txt` un-ignores result files; `work/cvdp_agentic_*/` excludes all per-problem subdirs
+   - Per-problem `reports/*.txt` not tracked — redundant with `work/raw_result.json` and `work/report.txt`
+   - Root `raw_result.json` and `report.txt` deleted and gitignored — canonical versions live in `work/`
+
+3. **HuggingFace CVDP dataset: 92 problems, same structure, zero ID overlap with hackathon JSONL.**
+   - Dataset: `nvidia/cvdp-benchmark-dataset`, config `cvdp_agentic_code_generation_no_commercial`, split `eval`
+   - Downloaded to `dataset/cvdp_agentic_no_commercial.jsonl` via HuggingFace `datasets` library
+   - Same 7 fields (`id`, `categories`, `system_message`, `prompt`, `context`, `patch`, `harness`) — `agent.py` works with it unchanged
+   - Zero ID overlap: the 30 hackathon problems are a completely separate curated set, not a subset of the HuggingFace dataset
+   - Category breakdown: cid003 (5→34), cid004 (13→25), cid005 (9→22), cid016 (3→11); difficulty: easy (1→17), medium (18→55), hard (11→20)
+
+4. **Claude desktop app consuming 12.2 GB on C: drive.** `claudevm.bundle` at 11.7 GB is the embedded VM runtime. Windows Settings Move failed (error 0x80073cf6). Workaround: uninstall → set default app install location to E: → reinstall. Claude Code CLI itself is negligible (<0.2 GB npm package).
+
+**Files changed this session:**
+- `docker/relay_agent.py` — moved from root
+- `docker/Dockerfile-agent` — moved from root
+- `results/results_one-shot.json` — moved from root
+- `results/results_retry.json` — moved from root
+- `agent.py` — results output path changed to `results/results_{mode}.json`
+- `README.md` — docker build command updated
+- `.gitignore` — work/ whitelist; root raw_result.json and report.txt added as ignored
+- `dataset/cvdp_agentic_no_commercial.jsonl` — downloaded from HuggingFace (92 problems)
+
+---
+
 ### Session 13 — 2026-04-20
 
 **Topic:** AGENTS.md v3 (8 rules); self-review mechanism for unverified problems; harness allowlist expanded to all .py; argparse -i batch fix; ember_meadow_sunrise PASS; improved to 25/30

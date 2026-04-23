@@ -11,8 +11,9 @@ Built for **ASU VLSI Design Automation (Mini Project 2)** under Prof. Chhabria.
 
 This agent solves Verilog design problems from the CVDP benchmark — RTL repair, code completion, and RTL generation from specification. It wraps the [Codex CLI](https://github.com/openai/codex) as an autonomous agent, achieving **25/30 problems (83.3%)** on the official NVIDIA harness.
 
-**Research question:** Does iterative feedback-based repair outperform one-shot generation?
-**Answer:** Yes — retry mode outperforms one-shot by +10 problems (50% → 83%), with the largest gains on hard problems (+6: 27% → 82%).
+**Research question:** How effectively can an LLM agent solve RTL design problems when given maximal context — the natural language spec, existing RTL, and the official test assertions — and does iterative self-correction improve outcomes when the agent has no external simulation oracle?
+
+**Answer:** Yes — providing full harness spec visibility combined with iterative self-correction outperforms one-shot generation by +10 problems (50% → 83%), with the largest gains on hard problems (+6: 27% → 82%). However, LLM static reasoning has a hard ceiling: the 5 remaining failures are all cases where the agent hallucinates correct behavior (e.g. claims latency = 6 cycles, Phase B measures 7) — real simulation is the only reliable oracle for timing and boundary-condition bugs.
 
 ---
 
