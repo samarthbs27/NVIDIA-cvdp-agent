@@ -1,10 +1,7 @@
 # Outputs that belong in work/ or results/ — ignore if accidentally written to root
-raw_result.json
-report.txt
-results_*.json
-
-# Presentation and scratch files
-presentation_qa.txt
+/raw_result.json
+/report.txt
+/results_*.json
 
 # Work directory — include results and reports only; exclude RTL, logs, Docker artifacts
 work/*
@@ -27,3 +24,19 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Generation/scratch scripts — not needed to reproduce results
+make_presentation.py
+make_report.py
+make_report_docx.py
+CVDP_Agent_Report.docx
+CVDP_Agent_Presentation.pptx
+architecture_flow.drawio
+
+# Extra datasets — not part of hackathon submission
+cvdp_v1.0.3_agentic_code_generation_no_commercial.jsonl
+cvdp_v1.0.4_agentic_code_generation_commercial.jsonl
+
+# Course admin files
+Phase 3 Submission.pdf
+Presentation guidelines.pdf

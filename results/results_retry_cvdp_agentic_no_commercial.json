@@ -1,0 +1,1106 @@
+[
+  {
+    "id": "cvdp_agentic_64b66b_codec_0001",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_AES_encryption_decryption_0003",
+    "categories": [
+      "cid016",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile test.vcd opened for output.\nPASS\nPASS"
+  },
+  {
+    "id": "cvdp_agentic_AES_encryption_decryption_0005",
+    "categories": [
+      "cid016",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile test.vcd opened for output.\nPASS\nPASS"
+  },
+  {
+    "id": "cvdp_agentic_AES_encryption_decryption_0009",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile test.vcd opened for output.\nPASS\nPASS"
+  },
+  {
+    "id": "cvdp_agentic_AES_encryption_decryption_0012",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_AES_encryption_decryption_0012/rtl/aes_decrypt.sv:212: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_AES_encryption_decryption_0012/rtl/aes_decrypt.sv:212: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nVCD info: dumpfile test.vcd opened for output.\nPASS\nPASS"
+  },
+  {
+    "id": "cvdp_agentic_AES_encryption_decryption_0018",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_AES_encryption_decryption_0018/rtl/aes_encrypt.sv:219: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_AES_encryption_decryption_0018/rtl/aes_encrypt.sv:219: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_AES_encryption_decryption_0018/rtl/aes_encrypt.sv:219: sorry: constant selects in always_* processes are not currently supported ("
+  },
+  {
+    "id": "cvdp_agentic_DES_0001",
+    "categories": [
+      "cid003",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_DES_0001/verif/tb_des_enc.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_DES_0003",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_DES_0003/verif/tb_des_dec.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_DES_0005",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_DES_0005/verif/tb_3des_enc.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_DES_0007",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_DES_0007/verif/tb_3des_dec.sv:52: warning: task definition for \"Burst_test\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n\nSingle Tests\nPASS!\nPASS!\nPASS!\nPASS!\n\nBurst Test\nPASS!\nPASS!\nPASS!"
+  },
+  {
+    "id": "cvdp_agentic_Min_Hamming_Distance_Finder_0001",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "fail",
+    "passed": false,
+    "attempts": 6,
+    "output": "Starting testbench for Min_Hamming_Distance_Finder...\nStarting Edge Case Testing...\n[PASS] All references equal to query: Query=10101010, Refs=10101010101010101010101010101010 -> Expected: index=0, dist=0; Got: index=0, dist=0\n[PASS] Exact match among others: Query=11110000, Refs=00000000111000001111000010101010 -> Expected: index=1, dist=0; Got: index=1, dist=0\n[PASS] First reference is closest: Query=01010101, Refs=01010100101010101111000000001111 -> Expected: index=3, dist=1; Got: index=3, di"
+  },
+  {
+    "id": "cvdp_agentic_PCIe_endpoint_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_arithmetic_progression_generator_0001",
+    "categories": [
+      "cid016",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_async_fifo_compute_ram_application_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_async_fifo_compute_ram_application_0006",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_async_filo_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Applying Reset...\nReset Complete\nDepth = 8\nEmpty Status: 1 | Full Status: 0\nSimulating FILO Behavior - Push Operations...\nPushed Data: 92 | Counter: 1 | Full: 0 | Empty: 0 \nPushed Data: 40 | Counter: 2 | Full: 0 | Empty: 0 \nPushed Data: 04 | Counter: 3 | Full: 0 | Empty: 0 \nPushed Data: 31 | Counter: 4 | Full: 0 | Empty: 0 \nPushed Data: 86 | Counter: 5 | Full: 0 | Empty: 0 \nPushed Data: c6 | Counter: 6 | Full: 0 | Empty: 0 \nPushed Data: 32 | Counter: 7 | Full: 0 | Empty: 0 \nPushed Data: 09 | Cou"
+  },
+  {
+    "id": "cvdp_agentic_axi4lite_to_pcie_config_0003",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_axis_broadcaster_0001",
+    "categories": [
+      "cid016",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile tb_axis_broadcast.vcd opened for output.\nTime=0, s_axis_tdata=00, m_axis_tdata_1=00, m_axis_tdata_2=00, m_axis_tdata_3=00,\nTime=30000, s_axis_tdata=a5, m_axis_tdata_1=00, m_axis_tdata_2=00, m_axis_tdata_3=00,\nTime=35000, s_axis_tdata=a5, m_axis_tdata_1=a5, m_axis_tdata_2=a5, m_axis_tdata_3=a5,\nTime=40000, s_axis_tdata=5a, m_axis_tdata_1=a5, m_axis_tdata_2=a5, m_axis_tdata_3=a5,\nTime=50000, s_axis_tdata=5b, m_axis_tdata_1=a5, m_axis_tdata_2=a5, m_axis_tdata_3=a5,\nTime=55000, s_"
+  },
+  {
+    "id": "cvdp_agentic_axis_to_uart_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_axis_to_uart_0004",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "TEST PASS"
+  },
+  {
+    "id": "cvdp_agentic_barrel_shifter_0001",
+    "categories": [
+      "cid016",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Starting Testbench for barrel_shifter_8bit...\n--------------------------------------------------\n|  Data_in  |  Shift | Left/Right |  Output  | Expected |\n--------------------------------------------------\n| 00100100 |   1   |     1     | 01001000 | 01001000 |\n| 01100011 |   5   |     1     | 01100000 | 01100000 |\n| 01100101 |   2   |     1     | 10010100 | 10010100 |\n| 00001101 |   6   |     1     | 01000000 | 01000000 |\n| 11101101 |   4   |     1     | 11010000 | 11010000 |\n| 11000110 |   5   "
+  },
+  {
+    "id": "cvdp_agentic_barrel_shifter_0002",
+    "categories": [
+      "cid004",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Starting Testbench for barrel_shifter_8bit...\n--------------------------------------------------\n|  Data_in  |  Shift | Left/Right |  Output  | Expected |\n--------------------------------------------------\n| 00100100 |   1   |     1     | 01001000 | 01001000 |\n| 01100011 |   5   |     1     | 01100000 | 01100000 |\n| 01100101 |   2   |     1     | 10010100 | 10010100 |\n| 00001101 |   6   |     1     | 01000000 | 01000000 |\n| 11101101 |   4   |     1     | 11010000 | 11010000 |\n| 11000110 |   5   "
+  },
+  {
+    "id": "cvdp_agentic_bcd_adder_0004",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_binary_search_tree_algorithms_0001",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_binary_search_tree_algorithms_0014",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_binary_to_gray_0003",
+    "categories": [
+      "cid003",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Time = 0 | Binary Input = 0000 | Gray Output = 0000\nTime = 10 | Binary Input = 0001 | Gray Output = 0001\nTime = 20 | Binary Input = 0010 | Gray Output = 0011\nTime = 30 | Binary Input = 0011 | Gray Output = 0010\nTime = 40 | Binary Input = 0100 | Gray Output = 0110\nTime = 50 | Binary Input = 0101 | Gray Output = 0111\nTime = 60 | Binary Input = 0110 | Gray Output = 0101\nTime = 70 | Binary Input = 0111 | Gray Output = 0100\nTime = 80 | Binary Input = 1000 | Gray Output = 1100\nTime = 90 | Binary Input"
+  },
+  {
+    "id": "cvdp_agentic_byte_enable_ram_0002",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Test 1: Port A read at addr 0 = deadbeef (Expected: DEADBEEF)\nTest 2: Port B read at addr 1 = cafe0000 (Expected: CAFE0000)\nTest 3: Port A read at addr 2 = abcd1234 (Expected: ABCD1234)\nTest 3: Port B read at addr 2 = abcd1234 (Expected: ABCD1234)\nTest 4: Port A read at addr 3 = abcd1234 (Expected: ABCD1234)\nTest 5: Port A read at addr 5 = aaaaaaaa (Expected: AAAAAAAA)\nTest 5: Port B read at addr 6 = 55555555 (Expected: 55555555)"
+  },
+  {
+    "id": "cvdp_agentic_cache_controller_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile cache_controller.vcd opened for output."
+  },
+  {
+    "id": "cvdp_agentic_caesar_cipher_0001",
+    "categories": [
+      "cid016",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Test case 1: Phrase 'hello' with key =  3\nOutput: khoor\nTest case 2: Phrase 'WORLD' with key =  4\nOutput: ASVPH\nTest case 3: Phrase 'Caesar' with key =  5\nOutput: Hfjxfw"
+  },
+  {
+    "id": "cvdp_agentic_cellular_automata_0002",
+    "categories": [
+      "cid003",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Cycle 6074: Value b30d repeated; first seen at cycle 58\nCycle 6075: Value 9d94 repeated; first seen at cycle 59\nCycle 6076: Value e4f7 repeated; first seen at cycle 60\nCycle 6077: Value 3f10 repeated; first seen at cycle 61\nCycle 6078: Value 41b8 repeated; first seen at cycle 62\nCycle 6079: Value e28c repeated; first seen at cycle 63\nCycle 6080: Value 36d7 repeated; first seen at cycle 64\nCycle 6081: Value d251 repeated; first seen at cycle 65\nCycle 6082: Value 5fda repeated; first seen at cycle"
+  },
+  {
+    "id": "cvdp_agentic_cic_decimator_0001",
+    "categories": [
+      "cid003",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_cipher_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 4,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_cont_adder_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Match at 75000: sum=00000011\nMatch at 85000: sum=00000018\nMatch at 95000: sum=00000018\nTime=105000 flush done, sum_out=00000000 sum_valid=0\nMatch at 135000: sum=00000012\nMatch at 145000: sum=00000013\nMatch at 155000: sum=00000018\nMatch at 165000: sum=0000001d\nTime=165000 second block done, sum_out=0000001d sum_valid=1\nMatch at 175000: sum=0000001d\nMatch at 185000: sum=12153541\nMatch at 195000: sum=d29e93c2\nMatch at 205000: sum=572369cb\nMatch at 215000: sum=0913c02e\nMatch at 225000: sum=0fcd3b3b\n"
+  },
+  {
+    "id": "cvdp_agentic_csr_using_apb_interface_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_custom_fifo_0004",
+    "categories": [
+      "cid016",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 4,
+    "output": "Time\tclear in_valid in_addr    in_rdata      in_err | out_valid out_addr    out_rdata     out_err out_err_plus2 | busy\n0\t0      0      00000000   00000000    0    | x      xxxxxxxX  xxxxxxxx   x    0    | x\n5000\t0      0      00000000   00000000    0    | 0      00000000  00000000   0    0    | 0\n\n*** Test 1: Clear FIFO (Aligned PC) ***\n30000\t1      0      00000000   00000000    0    | 0      00000000  00000000   0    0    | 0\n40000\t0      0      00000000   00000000    0    | 0      00000000  00"
+  },
+  {
+    "id": "cvdp_agentic_digital_stopwatch_0001",
+    "categories": [
+      "cid005",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_direct_map_cache_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_direct_map_cache_0001/verif/tb_direct_map_cache.sv:105: warning: task definition for \"reset\" has an empty port declaration list!\nwork/cvdp_agentic_direct_map_cache_0001/verif/tb_direct_map_cache.sv:128: warning: task definition for \"write_comp0\" has an empty port declaration list!\nwork/cvdp_agentic_direct_map_cache_0001/verif/tb_direct_map_cache.sv:164: warning: task definition for \"read_comp1\" has an empty port declaration list!\nwork/cvdp_agentic_direct_map_cache_0001/verif/tb"
+  },
+  {
+    "id": "cvdp_agentic_direct_map_cache_0003",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile direct_map_cachet.vcd opened for output.\n\n[WRITE_TASK] @time 25000\n  -> index=2 (0x2), offset=0 (0x0), tag_in=00000, data_in=3524\n  -> comp=1, write=1, valid_in=1\n  -> hit=0, dirty=0, tag_out=00000, data_out=0, valid=1, error=0\n\n[READ_TASK] @time 45000\n  -> index=2 (0x2), offset=0 (0x0), tag_in=00000\n  -> comp=1, write=0\n  -> hit=1, dirty=0, tag_out=00000, data_out=3524, valid=1, error=0\n  -> [Pass] Data matched.\n\n[WRITE_TASK] @time 65000\n  -> index=2 (0x2), offset=0 (0x0), ta"
+  },
+  {
+    "id": "cvdp_agentic_dma_xfer_engine_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_door_lock_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_dual_port_memory_0001",
+    "categories": [
+      "cid016",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Time = 0 | we_a=0 addr_a= 0 data_in_a=0000 data_out_a=xxxx | we_b=0 addr_b= 0 data_in_b=0000 data_out_b=xxxx\nTime = 10000 | Writing 1010 to addr 5 on Port A, Writing 1100 to addr 10 on Port B\nTime = 10000 | we_a=1 addr_a= 5 data_in_a=1010 data_out_a=xxxx | we_b=1 addr_b=10 data_in_b=1100 data_out_b=xxxx\nTime = 15000 | we_a=1 addr_a= 5 data_in_a=1010 data_out_a=1010 | we_b=1 addr_b=10 data_in_b=1100 data_out_b=1100\nTime = 20000 | we_a=0 addr_a= 5 data_in_a=1010 data_out_a=1010 | we_b=0 addr_b=10 "
+  },
+  {
+    "id": "cvdp_agentic_dual_port_memory_0004",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "==== Starting Dual Port Memory ECC Testbench ====\n[20 ns] Reset complete.\n\n=== Test 1: Write and Read back ===\n[20 ns] Writing data 0xa to addr_a = 3\n[30 ns] Reading from addr_b = 3\n[50 ns] Data out = 0xa, ECC error = 0\n PASS: Read data OK, ECC OK\n\n=== Test 2: Inject ECC error manually ===\n[50 ns] Manually corrupted RAM at address 3: expected 0xA, now = 0xb\n[60 ns] Reading from corrupted addr_b = 3\n[80 ns] Data out = 0xb, ECC error = 1\n PASS: ECC error correctly detected\n\n==== All tests complete"
+  },
+  {
+    "id": "cvdp_agentic_dynamic_equalizer_0001",
+    "categories": [
+      "cid003",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_dynamic_equalizer_0004",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_dynamic_equalizer_0008",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "work/cvdp_agentic_dynamic_equalizer_0008/rtl/error_calc.sv:20: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_dynamic_equalizer_0008/rtl/error_calc.sv:20: sorry: constant selects in always_* processes are not currently supported (all bits will be included)."
+  },
+  {
+    "id": "cvdp_agentic_elevator_control_0004",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_ethernet_mii_0004",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_ethernet_mii_0006",
+    "categories": [
+      "cid003",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_event_scheduler_0001",
+    "categories": [
+      "cid003",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile event_scheduler.vcd opened for output.\nTest Case 1 Passed: Event 4 triggered at time 20 ns\nTest Case 2 Passed: Event 5 (priority 3) triggered over Event 6 at time 80 ns\nTest Case 3 Passed: Event 7 cancelled successfully (no trigger) at time 170 ns"
+  },
+  {
+    "id": "cvdp_agentic_event_scheduler_0004",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Starting Modified Testbench with Correct Sampling...\n\nTC1: Adding event ID=1 with timestamp=30, priority=2\nTC1 Outputs: event_triggered=1, triggered_event_id=1, error=0, current_time=30, log_event_time=30, log_event_id=1\n\nTC2: Adding event ID=2 then canceling it\nTC2 Outputs: event_triggered=0, triggered_event_id=0, error=0, current_time=80, log_event_time=0, log_event_id=0\n\nTC3: Adding event ID=3 then modifying its timestamp and priority\nTC3 Outputs: event_triggered=1, triggered_event_id=3, erro"
+  },
+  {
+    "id": "cvdp_agentic_event_storing_0001",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_event_storing_0001/verif/tb.sv:80: warning: task definition for \"Reset\" has an empty port declaration list!\nVCD info: dumpfile test.vcd opened for output.\n----------------------\nThis testbench writes:\n 1 in row  0, col  0, address  7\n 2 in row  0, col  0, address  6\n 3 in row  0, col  0, address  5\n 4 in row  0, col  0, address  4\n 5 in row  0, col  0, address  3\n 6 in row  0, col  0, address  2\n 7 in row  0, col  0, address  1\n 8 in row  0, col  0, address  0\n 9 in row  0, col"
+  },
+  {
+    "id": "cvdp_agentic_fixed_arbiter_0010",
+    "categories": [
+      "cid004",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile fixed_priority_arbiter_tb.vcd opened for output.\nRESET complete.\n\n>>> Stimulus 1: Single request\n>>> Stimulus 2: Multiple requests\n>>> Stimulus 3: Priority override active\n>>> Stimulus 4: No requests or override\n>>> Stimulus 5: Clear signal asserted\n>>> Stimulus 6: Enable = 0 (arbiter disabled)\n>>> Stimulus 7: active_grant test\nStimulus-only testbench completed."
+  },
+  {
+    "id": "cvdp_agentic_gcd_0007",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "work/cvdp_agentic_gcd_0007/rtl/gcd_datapath_6.sv:26: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_gcd_0007/rtl/gcd_datapath_6.sv:26: sorry: constant selects in always_* processes are not currently supported (all bits will be included)."
+  },
+  {
+    "id": "cvdp_agentic_hdbn_codec_0001",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_jpeg_runlength_enc_0001",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_lfsr_0001",
+    "categories": [
+      "cid016",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile lfsr_8bit.vcd opened for output."
+  },
+  {
+    "id": "cvdp_agentic_lfsr_0005",
+    "categories": [
+      "cid016",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_low_power_channel_0001",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "fail",
+    "passed": false,
+    "attempts": 6,
+    "output": "work/cvdp_agentic_low_power_channel_0001/verif/tb_low_power_channel.sv:184: error: Cannot \"return\" from tasks.\nwork/cvdp_agentic_low_power_channel_0001/verif/tb_low_power_channel.sv:202: error: Enable of unknown task ``write_queue.pop_front''.\n2 error(s) during elaboration."
+  },
+  {
+    "id": "cvdp_agentic_monte_carlo_0006",
+    "categories": [
+      "cid016",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "=== Extended Monte Carlo DSP Monitor TB ===\n[STIM] All Zeros            | Data=0x0000 at 63\n[STIM] All Ones             | Data=0xffff at 75\n[STIM] Alternating 1010     | Data=0xaaaa at 87\n[STIM] Alternating 0101     | Data=0x5555 at 99\n[STIM] One-hot 0            | Data=0x0001 at 111\n[STIM] One-hot 1            | Data=0x0002 at 123\n[STIM] One-hot 2            | Data=0x0004 at 135\n[STIM] One-hot 3            | Data=0x0008 at 147\n[STIM] One-hot 4            | Data=0x0010 at 159\n[STIM] One-hot 5   "
+  },
+  {
+    "id": "cvdp_agentic_multiplexer_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Time=55000 PASSED Sel=0 Bypass=0\nTime=75000 PASSED Sel=0 Bypass=1\nTime=95000 PASSED Sel=1 Bypass=0\nTime=115000 PASSED Sel=1 Bypass=1\nTime=135000 PASSED Sel=2 Bypass=0\nTime=155000 PASSED Sel=2 Bypass=1\nTime=175000 PASSED Sel=3 Bypass=0\nTime=195000 PASSED Sel=3 Bypass=1\nTime=215000 PASSED Sel=0 Bypass=0\nTime=235000 PASSED Sel=0 Bypass=1\nTime=255000 PASSED Sel=1 Bypass=0\nTime=275000 PASSED Sel=1 Bypass=1\nTime=295000 PASSED Sel=2 Bypass=0\nTime=315000 PASSED Sel=2 Bypass=1\nTime=335000 PASSED Sel=3 By"
+  },
+  {
+    "id": "cvdp_agentic_nbit_swizzling_0001",
+    "categories": [
+      "cid003",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile dump.vcd opened for output.\n HEX ::sel = 0, data_in = 00001578f0\n data_out = 0f1ea80000,gray_out = 0891fc0000 \nBIN ::sel = 00, data_out = 0000111100011110101010000000000000000000, gray_out = 0000100010010001111111000000000000000000\n====================================================================================================================\n HEX ::sel = 0, data_in = 000009a80d\n data_out = b015900000,gray_out = e81f580000 \nBIN ::sel = 00, data_out = 1011000000010101100100"
+  },
+  {
+    "id": "cvdp_agentic_nmea_gps_0008",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_nmea_gps_0008/verif/nmea_decoder_tb.sv:52: warning: task definition for \"send_sentence\" has an empty port declaration list!\n-------------------------------------------------------------------------\nStarting Test Case 1: Valid $GPRMC sentence\nSUCCESS: Correct data_out = 3132\nINFO: data_valid = 1\nINFO: valid_sentence = 1\nINFO: error_overflow = 0\nINFO: watchdog_timeout = 0\nINFO: data_bin_valid = 1\nINFO: data_out_bin = 12 (decimal)\n--------------------------------------------------"
+  },
+  {
+    "id": "cvdp_agentic_phase_rotation_0010",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_phase_rotation_0013",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_phase_rotation_0015",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_phase_rotation_0019",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_phase_rotation_0028",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "work/cvdp_agentic_phase_rotation_0028/rtl/correlate.sv:46: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_phase_rotation_0028/rtl/correlate.sv:46: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_phase_rotation_0028/rtl/correlate.sv:46: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agen"
+  },
+  {
+    "id": "cvdp_agentic_phase_rotation_0031",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "work/cvdp_agentic_phase_rotation_0031/rtl/detect_sequence.sv:161: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_phase_rotation_0031/rtl/detect_sequence.sv:89: warning: A for statement must use the index (i) in the condition expression to be synthesized in an always_ff process.\nwork/cvdp_agentic_phase_rotation_0031/rtl/detect_sequence.sv:108: warning: A for statement must use the index (i) in the condition expression to be"
+  },
+  {
+    "id": "cvdp_agentic_phase_rotation_0038",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_poly_decimator_0001",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "work/cvdp_agentic_poly_decimator_0001/rtl/shift_register.sv:37: warning: A for statement must use the index (j) in the condition expression to be synthesized in an always_comb process.\nwork/cvdp_agentic_poly_decimator_0001/rtl/shift_register.sv:21: warning: A for statement must use the index (i) in the condition expression to be synthesized in an always_ff process.\nwork/cvdp_agentic_poly_decimator_0001/rtl/shift_register.sv:27: warning: A for statement must use the index (i) in the condition exp"
+  },
+  {
+    "id": "cvdp_agentic_prbs_0001",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_programmable_fsm_dynamic_state_encoding_0001",
+    "categories": [
+      "cid004",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile fsm_tb.vcd opened for output.\nTest 1: encoded_state = 10, dynamic_encoded_state = 11, error_flag = 0, operation_result = 17\nTest 2: encoded_state = 10, dynamic_encoded_state = 12, error_flag = 0, operation_result = 18\nTest 3: encoded_state = 10, dynamic_encoded_state = 13, error_flag = 0, operation_result = 19\nTest 4 (error): encoded_state = 10, dynamic_encoded_state = 14, error_flag = 1, operation_result = 20\nTest 5: encoded_state = 10, dynamic_encoded_state = 10, error_flag "
+  },
+  {
+    "id": "cvdp_agentic_queue_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": "PASS"
+  },
+  {
+    "id": "cvdp_agentic_rc5_0001",
+    "categories": [
+      "cid003",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_rgb_color_space_conversion_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_rgb_color_space_conversion_0004",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_secure_apb_history_shift_register_0001",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_sigma_delta_audio_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_signed_comparator_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 6,
+    "output": "Time=55000 PASS: a=   100 b=   100 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=0 eq=1\nTime=75000 PASS: a=    10 b=   -10 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=1 lt=0 eq=0\nTime=95000 PASS: a=    -5 b=     5 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=1 eq=0\nTime=115000 PASS: a=    50 b=    52 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=1 eq=0\nTime=135000 PASS: a=    51 b=    52 bypass=0 en=1 SHIFT_LEFT=1 TOL=2 => gt=0 lt=0 eq=1\nTime=155000 PASS: a=    53 b=    50 bypass=0 en=1 SHIFT_LEFT=1 TOL=2"
+  },
+  {
+    "id": "cvdp_agentic_sorter_0009",
+    "categories": [
+      "cid004",
+      "easy"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_sorter_0016",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_sorter_0026",
+    "categories": [
+      "cid005",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_spi_complex_mult_0002",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_swizzler_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "Test Case: Bypass Mode\n[Bypass] PASS: Lane 0 = 01\n[Bypass] PASS: Lane 1 = 02\n[Bypass] PASS: Lane 2 = 03\n[Bypass] PASS: Lane 3 = 04\n[Bypass] PARITY ERROR DETECTED\nTest Case: Identity Mapping\n[Identity] PASS: Lane 0 = 0a\n[Identity] PASS: Lane 1 = 0b\n[Identity] PASS: Lane 2 = 0c\n[Identity] PASS: Lane 3 = 0d\n[Identity] PARITY ERROR DETECTED\nTest Case: Reverse Mapping\n[Reverse] PASS: Lane 0 = 17\n[Reverse] PASS: Lane 1 = 16\n[Reverse] PASS: Lane 2 = 15\n[Reverse] PASS: Lane 3 = 14\n[Reverse] PARITY ERROR"
+  },
+  {
+    "id": "cvdp_agentic_swizzler_0005",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "TEST 1 PASS\nTEST 1 INVALID MAPPING PASS\nTEST 2 PASS\nTEST 3 PASS\nTEST 4 PASS: Invalid mapping detected"
+  },
+  {
+    "id": "cvdp_agentic_sync_serial_communication_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_sync_serial_communication_0001/verif/sync_serial_communication_tb.sv:73: warning: task definition for \"initialization\" has an empty port declaration list!\nwork/cvdp_agentic_sync_serial_communication_0001/verif/sync_serial_communication_tb.sv:83: warning: task definition for \"drive_byte\" has an empty port declaration list!\nwork/cvdp_agentic_sync_serial_communication_0001/verif/sync_serial_communication_tb.sv:97: warning: task definition for \"drive_half_word\" has an empty port de"
+  },
+  {
+    "id": "cvdp_agentic_systolic_array_0001",
+    "categories": [
+      "cid005",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "==========================================\n Starting 2x2 Systolic Array Testbench...\n==========================================\nTest 0 PASSED. y0=5, y1=5 (Expected 5, 5)\nTest 1 PASSED. y0=40, y1=53 (Expected 40, 53)\nTest 2 PASSED. y0=0, y1=0 (Expected 0, 0)\nTest 3 PASSED. y0=0, y1=0 (Expected 0, 0)\nTest 4 PASSED. y0=2, y1=2 (Expected 2, 2)\nTest 5 PASSED. y0=120, y1=158 (Expected 120, 158)\nTest 6 PASSED. y0=0, y1=0 (Expected 0, 0)\n==========================================\n All tests completed.\n="
+  },
+  {
+    "id": "cvdp_agentic_thermostat_secure_0001",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_traffic_light_controller_0001",
+    "categories": [
+      "cid004",
+      "hard"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_ttc_lite_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "unverified",
+    "passed": false,
+    "attempts": 2,
+    "output": ""
+  },
+  {
+    "id": "cvdp_agentic_universal_shift_reg_0001",
+    "categories": [
+      "cid003",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_universal_shift_reg_0001/verif/tb_universal_shift_register.sv:31: warning: task definition for \"reset_register\" has an empty port declaration list!\nwork/cvdp_agentic_universal_shift_reg_0001/verif/tb_universal_shift_register.sv:44: warning: task definition for \"test_pipo\" has an empty port declaration list!\nwork/cvdp_agentic_universal_shift_reg_0001/verif/tb_universal_shift_register.sv:60: warning: task definition for \"test_piso\" has an empty port declaration list!\nwork/cvdp_ag"
+  },
+  {
+    "id": "cvdp_agentic_universal_shift_reg_0003",
+    "categories": [
+      "cid004",
+      "medium"
+    ],
+    "mode": "retry",
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "work/cvdp_agentic_universal_shift_reg_0003/verif/tb_universal_shift_register.sv:72: warning: task definition for \"reset_register\" has an empty port declaration list!\nwork/cvdp_agentic_universal_shift_reg_0003/verif/tb_universal_shift_register.sv:152: warning: task definition for \"update_expected_signals\" has an empty port declaration list!\nwork/cvdp_agentic_universal_shift_reg_0003/verif/tb_universal_shift_register.sv:164: warning: task definition for \"test_hold\" has an empty port declaration li"
+  }
+]

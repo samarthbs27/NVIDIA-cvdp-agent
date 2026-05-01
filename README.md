@@ -17,6 +17,60 @@ This agent solves Verilog design problems from the CVDP benchmark — RTL repair
 
 ---
 
+## Quick Start
+
+> **The entire pipeline must be run from WSL (Ubuntu 22.04).** Phase B uses `os.sync()` (Linux-only) and spawns Docker containers — it cannot run on Windows or macOS directly.
+
+### Prerequisites
+
+| Requirement | Install |
+|---|---|
+| WSL 2 + Ubuntu 22.04 | `wsl --install -d Ubuntu-22.04` (Windows PowerShell) |
+| Docker Desktop | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) — then enable **Settings → Resources → WSL Integration → Ubuntu-22.04** |
+| Node.js (in WSL) | `curl -fsSL https://deb.nodesource.com/setup_lts.x \| sudo -E bash - && sudo apt install -y nodejs` |
+| Codex CLI (in WSL) | `sudo npm install -g @openai/codex@latest` |
+| OpenAI API key | `/usr/bin/codex login` (uses your OpenAI account).|
+| iverilog (in WSL) | `sudo apt install -y iverilog` |
+| Python 3.10+ (in WSL) | usually pre-installed; check with `python3 --version` |
+| python3-venv (in WSL) | `sudo apt install -y python3.10-venv` (required to create virtual environments) |
+
+> **Note on the OpenAI model:** Results in this repo used `gpt-5.4` via the ASU OpenAI account. Any key with access to a capable model (gpt-4o, gpt-4.1, o3, etc.) will work — Codex picks up whatever your account's default model is.
+
+> **WSL distro warning:** Make sure you open the correct WSL distro. In PowerShell run `wsl -d Ubuntu-22.04` — do NOT use the `docker-desktop` distro (it has no git, no Python, and is Docker's internal container).
+
+> **Codex path warning:** If you have Codex installed on Windows as well, WSL may pick up the Windows binary. Always use the full path `/usr/bin/codex` or verify with `which codex` that it points to `/usr/bin/codex`.
+
+### One-time setup (run once in WSL)
+
+```bash
+git clone https://github.com/samarthbs27/NVIDIA-cvdp-agent.git
+cd NVIDIA-cvdp-agent
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements-harness.txt
+echo '{"auths":{}}' > ~/.docker/config.json     # fix ghcr.io credential helper in WSL
+docker pull ghcr.io/hdl/sim/osvb
+docker build -t cvdp-relay-agent:latest -f docker/Dockerfile-agent docker/
+/usr/bin/codex login                             # log in with your OpenAI / ASU account
+```
+
+### Run the full pipeline (Phase A + B) on one problem
+
+```bash
+source venv/bin/activate
+python run.py --ids cvdp_agentic_nebula_nova_castle_8184
+```
+
+### Run the full benchmark (all 30 problems)
+
+```bash
+source venv/bin/activate
+python run.py
+```
+
+Results are written to `results/results_retry.json` (Phase A) and `work/report.txt` (Phase B).
+
+---
+
 ## Architecture
 
 The pipeline runs in two phases, both from WSL:
@@ -200,50 +254,60 @@ Docker is installed at a non-standard path on this machine. All generated shell 
 
 ---
 
-## Setup
+## Running the Pipeline
 
-Both phases run from WSL (Ubuntu 22.04). **Docker Desktop WSL integration must be enabled** (Settings → Resources → WSL Integration → toggle Ubuntu-22.04).
+All commands assume the venv is active (`source venv/bin/activate`) and you are in the repo root inside WSL.
+
+### Recommended: single entry point (`run.py`)
 
 ```bash
-cd /path/to/NVIDIA-cvdp-agent   # adjust to your WSL mount path
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements-harness.txt
-echo '{"auths":{}}' > ~/.docker/config.json   # fix ghcr.io pulls in WSL
-docker pull ghcr.io/hdl/sim/osvb
-docker build -t cvdp-relay-agent:latest -f docker/Dockerfile-agent docker/
+python run.py                                           # all 30 problems (Phase A + B)
+python run.py --ids cvdp_agentic_forest_fountain_river_0702   # one problem
+python run.py --dataset path/to/custom.jsonl            # custom dataset
+python run.py --phase a                                 # Phase A only
+python run.py --phase b                                 # Phase B only
 ```
 
-### Phase A — Generate RTL
+### Phase A only — generate RTL (`agent.py`)
 
 ```bash
-source venv/bin/activate
-
-# All 30 problems, retry mode
-python agent.py --mode retry
-
-# Specific problems
+python agent.py --mode retry                            # all 30 problems
 python agent.py --mode retry --ids \
   cvdp_agentic_ivory_cloud_ocean_3516 \
-  cvdp_agentic_forest_fountain_river_0702
+  cvdp_agentic_forest_fountain_river_0702               # specific problems
 ```
 
-### Phase B — Official Grading
+### Phase B only — official grading (`run_benchmark.py`)
 
 ```bash
-source venv/bin/activate
-
-# All problems
 python run_benchmark.py \
   -f dataset/hackathon-agentic-obfuscated_final_corrected.jsonl \
-  -g cvdp-relay-agent:latest --llm
+  -g cvdp-relay-agent:latest --llm                      # all problems
 
-# Specific problems
 python run_benchmark.py \
   -f dataset/hackathon-agentic-obfuscated_final_corrected.jsonl \
   -i cvdp_agentic_sunrise_ivory_glacier_9089 \
   -i cvdp_agentic_breeze_velvet_violet_7060 \
-  -g cvdp-relay-agent:latest --llm
+  -g cvdp-relay-agent:latest --llm                      # specific problems
 ```
+
+---
+
+## Running on Custom / Hidden Test Cases
+
+This benchmark uses the fixed 30-problem NVIDIA CVDP dataset — all problems are publicly distributed in the JSONL file and there are no hidden test cases for this submission.
+
+To run the agent on a different JSONL dataset (e.g. a custom problem set), the file must follow the same format as the hackathon dataset with these fields: `id`, `categories`, `prompt`, `context`, `harness`. Then run:
+
+```bash
+# Ensure the relay agent image is built first
+docker build -t cvdp-relay-agent:latest -f docker/Dockerfile-agent docker/
+
+# Run full pipeline on the custom dataset
+python run.py --dataset path/to/custom.jsonl
+```
+
+The agent will generate RTL in Phase A and grade it in Phase B automatically.
 
 ---
 

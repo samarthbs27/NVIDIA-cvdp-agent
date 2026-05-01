@@ -1,50 +1,14 @@
 [
   {
-    "id": "cvdp_agentic_sunrise_ivory_glacier_9089",
+    "id": "cvdp_agentic_nebula_nova_castle_8184",
     "categories": [
       "cid004",
       "medium"
     ],
     "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 2,
-    "output": ""
-  },
-  {
-    "id": "cvdp_agentic_breeze_velvet_violet_7060",
-    "categories": [
-      "cid005",
-      "hard"
-    ],
-    "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 2,
-    "output": ""
-  },
-  {
-    "id": "cvdp_agentic_lagoon_dragon_diamond_4339",
-    "categories": [
-      "cid004",
-      "hard"
-    ],
-    "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 2,
-    "output": "work/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:42: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:42: sorry: constant selects in always_* processes are not currently supported (all bits will be included).\nwork/cvdp_agentic_lagoon_dragon_diamond_4339/rtl/correlate.sv:42: sorry: constant selects in always_* processes are not currently supported (all bits will be incl"
-  },
-  {
-    "id": "cvdp_agentic_compass_breeze_obsidian_0016",
-    "categories": [
-      "cid005",
-      "medium"
-    ],
-    "mode": "retry",
-    "status": "unverified",
-    "passed": false,
-    "attempts": 2,
-    "output": ""
+    "status": "pass",
+    "passed": true,
+    "attempts": 1,
+    "output": "VCD info: dumpfile direct_map_cachet.vcd opened for output.\n\n[WRITE_TASK] @time 25000\n  -> index=2 (0x2), offset=0 (0x0), tag_in=00000, data_in=3524\n  -> comp=1, write=1, valid_in=1\n  -> hit=0, dirty=0, tag_out=00000, data_out=0, valid=1, error=0\n\n[READ_TASK] @time 45000\n  -> index=2 (0x2), offset=0 (0x0), tag_in=00000\n  -> comp=1, write=0\n  -> hit=0, dirty=x, tag_out=xxxxx, data_out=xxxx, valid=x, error=0\n  -> [Error] Data mismatch! data_in=3524, data_out=xxxx\n\n[WRITE_TASK] @time 65000\n  -> ind"
   }
 ]

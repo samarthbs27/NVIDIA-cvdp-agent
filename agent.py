@@ -86,10 +86,18 @@ def setup_workdir(problem: dict) -> Path:
 
     if workdir.exists():
         def remove_readonly(func, path, _):
-            os.chmod(path, stat.S_IWRITE)
-            func(path)
-        shutil.rmtree(workdir, onexc=remove_readonly)
-    workdir.mkdir(parents=True)
+            try:
+                os.chmod(path, stat.S_IWRITE)
+                func(path)
+            except PermissionError:
+                pass  # skip files locked by OneDrive/antivirus on Windows
+        # onexc added in Python 3.12; onerror works on 3.10/3.11 (WSL)
+        import sys as _sys
+        if _sys.version_info >= (3, 12):
+            shutil.rmtree(workdir, onexc=remove_readonly)
+        else:
+            shutil.rmtree(workdir, onerror=remove_readonly)
+    workdir.mkdir(parents=True, exist_ok=True)
 
     # Write context files (rtl/, verif/, docs/, …)
     for rel_path, content in problem.get("context", {}).items():
@@ -322,7 +330,10 @@ def run_iverilog(workdir: Path) -> tuple[bool, str, str]:
 
     # Delete VCD waveform files — large, not used by Codex or our validation
     for vcd in workdir.rglob("*.vcd"):
-        vcd.unlink(missing_ok=True)
+        try:
+            vcd.unlink(missing_ok=True)
+        except PermissionError:
+            pass  # vvp may still hold the file on Windows; harmless to skip
 
     return passed, compile_out, sim_output
 
@@ -378,7 +389,7 @@ def solve_problem(problem: dict, mode: str) -> dict:
                 print(f"  Result     : UNVERIFIED ⚠  (RTL compiles, self-review passed — attempt {attempt})")
                 break
             else:
-                print(f"  Result     : REVIEW FAIL ✗  (spec issues found — attempt {attempt})")
+                print(f"  Result     : REVIEW FAIL  (spec issues found -- attempt {attempt})")
                 write_error_log(workdir, attempt, review_text)
             continue
 
@@ -411,7 +422,7 @@ def solve_problem(problem: dict, mode: str) -> dict:
             timed_out = (sim_out == "Simulation timed out")
             log_iverilog(workdir, attempt, compile_out, sim_out, compiled and not timed_out)
             if timed_out:
-                print(f"  Result     : TIMEOUT ✗  (RTL compiles but simulation hangs — attempt {attempt})")
+                print(f"  Result     : TIMEOUT  (RTL compiles but simulation hangs -- attempt {attempt})")
                 write_error_log(workdir, attempt,
                     "Simulation timed out after 60 seconds. The RTL likely contains an infinite "
                     "loop, a missing $finish, or a deadlock. Inspect all always blocks and loops "
@@ -419,13 +430,13 @@ def solve_problem(problem: dict, mode: str) -> dict:
             elif compiled:
                 if harness_src.exists() and attempt < max_iters:
                     needs_review = True
-                    print(f"  Result     : COMPILES ✓  (queuing spec self-review — attempt {attempt})")
+                    print(f"  Result     : COMPILES OK  (queuing spec self-review -- attempt {attempt})")
                 else:
                     status = "unverified"
                     print(f"  Result     : UNVERIFIED ⚠  (RTL compiles, no testbench — attempt {attempt})")
                     break
             else:
-                print(f"  Result     : COMPILE FAIL ✗  (attempt {attempt})")
+                print(f"  Result     : COMPILE FAIL  (attempt {attempt})")
                 snippet = compile_out.strip()[:200]
                 print(f"  Output     : {snippet}")
                 write_error_log(workdir, attempt, compile_out)
@@ -433,16 +444,16 @@ def solve_problem(problem: dict, mode: str) -> dict:
             log_iverilog(workdir, attempt, compile_out, sim_out, passed)
             if passed:
                 status = "pass"
-                print(f"  Result     : PASS ✓  (attempt {attempt})")
+                print(f"  Result     : PASS  (attempt {attempt})")
                 break
             else:
-                print(f"  Result     : FAIL ✗  (attempt {attempt})")
+                print(f"  Result     : FAIL  (attempt {attempt})")
                 snippet = output.strip()[:200]
                 print(f"  Output     : {snippet}")
                 write_error_log(workdir, attempt, output)
 
     if status == "fail":
-        print(f"\n  Final      : FAIL ✗  (all {max_iters} attempt(s) exhausted)")
+        print(f"\n  Final      : FAIL  (all {max_iters} attempt(s) exhausted)")
 
     return {
         "id":         problem_id,
@@ -457,11 +468,16 @@ def solve_problem(problem: dict, mode: str) -> dict:
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 def main():
-    if not DATASET.exists():
-        print(f"Dataset not found: {DATASET}")
+    # --dataset <path>  →  override default JSONL dataset
+    dataset = DATASET
+    if "--dataset" in sys.argv:
+        dataset = Path(sys.argv[sys.argv.index("--dataset") + 1])
+
+    if not dataset.exists():
+        print(f"Dataset not found: {dataset}")
         sys.exit(1)
 
-    with open(DATASET, encoding="utf-8") as f:
+    with open(dataset, encoding="utf-8") as f:
         problems = [json.loads(line) for line in f if line.strip()]
 
     # --mode one-shot | retry  (default: one-shot)
@@ -537,7 +553,7 @@ def main():
     results_file.parent.mkdir(exist_ok=True)
     with open(results_file, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
-    print(f"\n  Saved → {results_file}")
+    print(f"\n  Saved -> {results_file}")
 
 
 if __name__ == "__main__":
